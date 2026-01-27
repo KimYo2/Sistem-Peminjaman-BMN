@@ -25,14 +25,37 @@ try {
     }
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $nomor_bmn = $data['nomor_bmn'] ?? '';
+    $nomor_bmn_raw = $data['nomor_bmn'] ?? '';
 
-    if (empty($nomor_bmn)) {
+    if (empty($nomor_bmn_raw)) {
         echo json_encode(['success' => false, 'message' => 'Nomor BMN tidak valid']);
         exit;
     }
 
-    // Parse kode_barang and nup
+    // Parse BPS QR Code format
+    // Format: INV-xxx*xxx*xxx*KODE_BARANG*NUP
+    // Example: INV-20210420145333129398000*0540103000190000000KD*3100102001*16
+    $nomor_bmn = $nomor_bmn_raw;
+
+    // Check if QR contains asterisk delimiter (BPS format)
+    if (strpos($nomor_bmn_raw, '*') !== false) {
+        $parts = explode('*', $nomor_bmn_raw);
+
+        // Extract from specific indices:
+        // Index 2: Kode Barang (e.g., 3100102001)
+        // Index 3: NUP (e.g., 16)
+        if (count($parts) >= 4) {
+            $kode_barang_extracted = trim($parts[2]);
+            $nup_extracted = trim($parts[3]);
+
+            // Combine: KodeBarang-NUP
+            $nomor_bmn = $kode_barang_extracted . '-' . $nup_extracted;
+
+            error_log("BPS QR parsed: {$nomor_bmn_raw} -> {$nomor_bmn}");
+        }
+    }
+
+    // Parse kode_barang and nup from combined format
     $parts = explode('-', $nomor_bmn);
     if (count($parts) !== 2) {
         echo json_encode(['success' => false, 'message' => 'Format nomor BMN tidak valid']);
@@ -52,10 +75,22 @@ try {
     $stmt->execute([$kode_barang, $nup]);
     $peminjaman = $stmt->fetch();
 
+    // DEBUG: Log the query parameters and result
+    error_log("DEBUG kembalikan_barang.php:");
+    error_log("  Received nomor_bmn: " . $nomor_bmn);
+    error_log("  Parsed kode_barang: " . $kode_barang);
+    error_log("  Parsed nup: " . $nup);
+    error_log("  Query result: " . ($peminjaman ? "FOUND (ID: {$peminjaman['id']})" : "NOT FOUND"));
+
     if (!$peminjaman) {
         echo json_encode([
             'success' => false,
-            'message' => 'Barang ini tidak sedang dipinjam'
+            'message' => 'Barang ini tidak sedang dipinjam',
+            'debug' => [
+                'nomor_bmn' => $nomor_bmn,
+                'kode_barang' => $kode_barang,
+                'nup' => $nup
+            ]
         ]);
         exit;
     }
