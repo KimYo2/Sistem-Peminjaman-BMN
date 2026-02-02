@@ -31,39 +31,28 @@ Sistem ini dirancang untuk memudahkan pegawai BPS dalam meminjam barang inventar
 
 ## 📁 Struktur Folder
 
-```
 pinjam_qr/
+├── app/
+│   ├── Http/
+│   │   └── Controllers/
+│   │       ├── Admin/           # Controller Admin (Barang, Histori)
+│   │       ├── Auth/            # Controller Login/Logout
+│   │       └── User/            # Controller User (Dashboard, Peminjaman)
+│   └── Models/                  # Model Eloquent (User, Barang, Histori)
+├── resources/
+│   └── views/
+│       ├── admin/               # View Admin (Blade)
+│       ├── auth/                # View Login
+│       ├── layouts/             # Master Layout (Tailwind)
+│       └── user/                # View User
+├── routes/
+│   └── web.php                  # Definisi Route Aplikasi
+├── public/                      # Entry point & Assets
+│   └── index.php
 ├── database/
-│   └── database_schema.sql      # SQL schema dan sample data
-├── src/
-│   ├── config/
-│   │   ├── database.php         # Konfigurasi database
-│   │   └── auth.php             # Helper autentikasi
-│   ├── api/
-│   │   ├── login.php            # Endpoint login
-│   │   ├── logout.php           # Endpoint logout
-│   │   ├── scan_qr.php          # Endpoint scan QR
-│   │   ├── ajukan_peminjaman.php
-│   │   ├── kembalikan_barang.php
-│   │   ├── get_barang.php       # Get daftar barang
-│   │   └── get_histori.php      # Get histori peminjaman
-│   ├── assets/
-│   │   └── js/
-│   │       ├── main.js          # JavaScript utilities
-│   │       └── qr-scanner.js    # QR scanner functions
-│   ├── user/
-│   │   ├── dashboard.php        # Dashboard pegawai
-│   │   ├── scan.php             # Halaman scan QR
-│   │   └── detail_barang.php    # Detail barang
-│   ├── admin/
-│   │   ├── dashboard.php        # Dashboard admin
-│   │   ├── daftar_barang.php    # Daftar barang
-│   │   ├── scan_return.php      # Scan pengembalian
-│   │   └── histori.php          # Histori peminjaman
-│   ├── index.php                # Landing page
-│   └── login.php                # Halaman login
+│   └── migrations/              # Definisi Schema Database
 └── README.md
-```
+
 
 ## 💾 Instalasi
 
@@ -115,14 +104,9 @@ Ini akan membuat:
 
 Buka browser dan akses:
 ```
-http://localhost/pinjam_qr/src/
+http://localhost:8000
 ```
 
-Atau jika menggunakan Laravel serve:
-```bash
-php artisan serve
-```
-Lalu akses: http://localhost:8000/src/
 
 ## 👤 Demo Credentials
 
@@ -220,7 +204,7 @@ ORDER BY waktu_pinjam DESC;
 - Coba browser lain (Chrome/Firefox recommended)
 
 ### Database connection error
-- Periksa konfigurasi di `src/config/database.php`
+- Periksa konfigurasi di file `.env`
 - Pastikan MySQL service berjalan
 - Pastikan database `pinjam_bmn` sudah dibuat
 
@@ -232,7 +216,7 @@ ORDER BY waktu_pinjam DESC;
 ## 📱 Penggunaan di Smartphone
 
 1. Pastikan smartphone terhubung ke jaringan yang sama dengan server
-2. Akses menggunakan IP server, contoh: `http://192.168.1.100/pinjam_qr/src/`
+2. Akses menggunakan IP server, contoh: `http://192.168.1.100:8000`
 3. Untuk production, gunakan HTTPS agar kamera bisa diakses
 
 ## 🔐 Keamanan

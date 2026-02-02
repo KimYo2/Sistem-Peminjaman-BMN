@@ -11,8 +11,13 @@ class Barang extends Model
     protected $fillable = [
         'kode_barang',
         'nup',
+        'brand',
+        'tipe',
+        'kondisi_terakhir',
         'nama_barang',
         'ketersediaan',
+        'peminjam_terakhir',
+        'waktu_pinjam',
         'waktu_kembali'
     ];
 

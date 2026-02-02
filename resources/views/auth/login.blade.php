@@ -1,16 +1,3 @@
-<?php
-require_once 'config/auth.php';
-
-// Redirect if already logged in
-if (isLoggedIn()) {
-    if (isAdmin()) {
-        header('Location: /src/admin/dashboard.php');
-    } else {
-        header('Location: /src/user/dashboard.php');
-    }
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -18,11 +5,13 @@ if (isLoggedIn()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem Peminjaman BMN</title>
-    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=3">
+    <!-- Use the same Tailwind config/script as legacy or verify if we have a layout -->
+    <!-- Ideally we should use the same resources as app layout but this page is standalone -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
+            // Dark mode removed
             theme: {
                 extend: {
                     colors: {
@@ -43,10 +32,19 @@ if (isLoggedIn()) {
             }
         }
     </script>
+
+    <script>
+        // Check and apply theme immediately
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
 
-<body class="dark:bg-slate-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-200">
-
+<body
+    class="dark:bg-slate-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-200 bg-slate-50">
 
     <!-- Dark Mode Toggle -->
     <button onclick="toggleDarkMode()"
@@ -56,6 +54,49 @@ if (isLoggedIn()) {
                 d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
         </svg>
     </button>
+
+    <script>
+        const sunIcon = "M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z";
+        const moonIcon = "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z";
+
+        function applyTheme(theme) {
+            const icon = document.getElementById('darkModeIcon');
+            // Ensure we check for existence as this runs in head too
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                if (icon) icon.setAttribute('d', moonIcon);
+            } else {
+                document.documentElement.classList.remove('dark');
+                if (icon) icon.setAttribute('d', sunIcon);
+            }
+        }
+
+        // Apply immediately
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light');
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                applyTheme('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                applyTheme('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Re-apply icon on load completion just in case element wasn't ready during head execution
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                const icon = document.getElementById('darkModeIcon');
+                if (icon) icon.setAttribute('d', sunIcon);
+            }
+        });
+    </script>
+
 
     <div class="w-full max-w-md">
         <!-- Logo BPS -->
@@ -77,25 +118,33 @@ if (isLoggedIn()) {
             class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 transition-colors">
             <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-6 transition-colors">Login</h2>
 
-            <form id="loginForm" class="space-y-5">
+            <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                @csrf
+
                 <div>
                     <label for="nip"
                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">NIP</label>
-                    <input type="text" id="nip" name="nip" required
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder-slate-400"
+                    <input type="text" id="nip" name="nip" value="{{ old('nip') }}" required autofocus
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder-slate-400 @error('nip') border-red-500 @enderror"
                         placeholder="Masukkan NIP Anda">
+                    @error('nip')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label for="password"
                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Password</label>
                     <input type="password" id="password" name="password" required
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder-slate-400"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder-slate-400 @error('password') border-red-500 @enderror"
                         placeholder="Masukkan password">
+                    @error('password')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <button type="submit" id="loginBtn"
-                    class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg transition duration-200 shadow-sm">
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg transition duration-200 shadow-sm flex justify-center items-center">
                     Access Dashboard
                 </button>
             </form>
@@ -126,41 +175,10 @@ if (isLoggedIn()) {
         </div>
 
         <p class="text-center text-xs text-slate-400 mt-8">
-            &copy; <?= date('Y') ?> Sistem Peminjaman BMN
+            &copy; {{ date('Y') }} Sistem Peminjaman BMN
         </p>
     </div>
 
-    <script src="/src/assets/js/main.js?v=3"></script>
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const nip = document.getElementById('nip').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
-
-            // Disable button
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span> Loading...';
-
-            const result = await apiCall('login.php', 'POST', { nip, password });
-
-            if (result.success) {
-                showToast('Login berhasil! Mengalihkan...', 'success');
-                setTimeout(() => {
-                    if (result.data.role === 'admin') {
-                        window.location.href = '/src/admin/dashboard.php';
-                    } else {
-                        window.location.href = '/src/user/dashboard.php';
-                    }
-                }, 800);
-            } else {
-                showToast(result.message, 'error');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Access Dashboard';
-            }
-        });
-    </script>
 </body>
 
 </html>

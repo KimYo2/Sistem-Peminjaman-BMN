@@ -32,20 +32,22 @@
 
         <div class="relative overflow-x-auto">
             <table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
-                <thead class="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-700 dark:text-slate-400">
+                <thead
+                    class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider transition-colors">
                     <tr>
-                        <th scope="col" class="px-6 py-3">No BMN</th>
-                        <th scope="col" class="px-6 py-3">Pelapor</th>
-                        <th scope="col" class="px-6 py-3">Jenis</th>
-                        <th scope="col" class="px-6 py-3">Deskripsi</th>
-                        <th scope="col" class="px-6 py-3">Tgl Lapor</th>
-                        <th scope="col" class="px-6 py-3">Status</th>
-                        <th scope="col" class="px-6 py-3">Aksi</th>
+                        <th scope="col" class="px-6 py-3 text-left">No BMN</th>
+                        <th scope="col" class="px-6 py-3 text-left">Pelapor</th>
+                        <th scope="col" class="px-6 py-3 text-left">Jenis</th>
+                        <th scope="col" class="px-6 py-3 text-left">Deskripsi</th>
+                        <th scope="col" class="px-6 py-3 text-left">Tgl Lapor</th>
+                        <th scope="col" class="px-6 py-3 text-left">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($tickets as $ticket)
-                        <tr class="bg-white border-b dark:bg-slate-800 dark:border-slate-700">
+                        <tr
+                            class="bg-white border-b dark:bg-slate-800 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition duration-150">
                             <td class="px-6 py-4 font-medium text-slate-900 dark:text-white whitespace-nowrap">
                                 {{ $ticket->nomor_bmn }}
                             </td>
@@ -114,7 +116,15 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center">Tidak ada data tiket kerusakan.</td>
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                <p class="text-sm">Tidak ada data tiket kerusakan.</p>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

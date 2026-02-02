@@ -12,10 +12,16 @@ class HistoriPeminjaman extends Model
         'kode_barang',
         'nup',
         'nip_peminjam',
+        'nama_peminjam',
         'waktu_pinjam',
         'waktu_kembali',
         'status',
     ];
 
     public $timestamps = false;
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class, 'nomor_bmn', 'nomor_bmn');
+    }
 }

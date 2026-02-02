@@ -1,113 +1,18 @@
-<?php
-require_once '../config/auth.php';
-require_once '../config/database.php';
-requireAdmin();
+@extends('layouts.app')
 
-$user = getCurrentUser();
-
-// Get statistics
-$stmt = $pdo->query("SELECT COUNT(*) as total FROM barang");
-$totalBarang = $stmt->fetch()['total'];
-
-$stmt = $pdo->query("SELECT COUNT(*) as total FROM barang WHERE ketersediaan = 'tersedia'");
-$tersedia = $stmt->fetch()['total'];
-
-$stmt = $pdo->query("SELECT COUNT(*) as total FROM barang WHERE ketersediaan = 'dipinjam'");
-$dipinjam = $stmt->fetch()['total'];
-
-$stmt = $pdo->query("SELECT COUNT(*) as total FROM histori_peminjaman WHERE status = 'dipinjam'");
-$aktivePeminjaman = $stmt->fetch()['total'];
-?>
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Sistem Peminjaman BMN</title>
-    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=3">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        slate: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-
-<body class="dark:bg-slate-900 min-h-screen transition-colors duration-200">
-
-
-    <!-- Header -->
-    <header
-        class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 dark:bg-blue-700 rounded-lg p-1.5 transition-colors">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                        </path>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-800 dark:text-white leading-tight transition-colors">
-                        Dashboard Admin</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-tight transition-colors">Sistem
-                        Peminjaman BMN</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-slate-600 dark:text-slate-300 hidden sm:block transition-colors">Hi,
-                    <?= htmlspecialchars($user['nama']) ?></span>
-
-                <!-- Dark Mode Toggle -->
-                <button onclick="toggleDarkMode()"
-                    class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path id="darkModeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
-                        </path>
-                    </svg>
-                </button>
-
-                <button onclick="logout()"
-                    class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
-                    Logout
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+@section('content')
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
+            <!-- Total Barang -->
             <div
                 class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between transition-colors">
                 <div>
                     <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Total Barang</p>
                     <p class="text-2xl font-bold text-slate-900 dark:text-white mt-1 transition-colors">
-                        <?= $totalBarang ?>
+                        {{ $totalBarang }}
                     </p>
                 </div>
                 <div class="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 transition-colors">
@@ -119,12 +24,13 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                 </div>
             </div>
 
+            <!-- Tersedia -->
             <div
                 class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between transition-colors">
                 <div>
                     <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Tersedia</p>
                     <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 transition-colors">
-                        <?= $tersedia ?>
+                        {{ $tersedia }}
                     </p>
                 </div>
                 <div class="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-3 transition-colors">
@@ -136,12 +42,13 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                 </div>
             </div>
 
+            <!-- Dipinjam -->
             <div
                 class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between transition-colors">
                 <div>
                     <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Dipinjam</p>
                     <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 transition-colors">
-                        <?= $dipinjam ?>
+                        {{ $dipinjam }}
                     </p>
                 </div>
                 <div class="bg-amber-100 dark:bg-amber-900/30 rounded-lg p-3 transition-colors">
@@ -153,13 +60,13 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                 </div>
             </div>
 
+            <!-- Aktif Peminjaman -->
             <div
                 class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between transition-colors">
                 <div>
-                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Aktif Peminjaman
-                    </p>
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Aktif Peminjaman</p>
                     <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 transition-colors">
-                        <?= $aktivePeminjaman ?>
+                        {{ $activeLoans }}
                     </p>
                 </div>
                 <div class="bg-amber-50 dark:bg-amber-900/30 rounded-lg p-3 transition-colors">
@@ -178,7 +85,8 @@ $aktivePeminjaman = $stmt->fetch()['total'];
         <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4 transition-colors">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
 
-            <a href="daftar_barang.php"
+            <!-- Daftar Barang -->
+            <a href="{{ route('admin.barang.index') }}"
                 class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md transition duration-200 group">
                 <div class="flex items-start">
                     <div
@@ -194,13 +102,14 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                         <h3
                             class="font-semibold text-slate-800 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition">
                             Daftar Barang</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Kelola inventaris
-                            BMN</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Kelola inventaris BMN
+                        </p>
                     </div>
                 </div>
             </a>
 
-            <a href="scan_return.php"
+            <!-- Scan Pengembalian (Already Migrated) -->
+            <a href="{{ route('return.index') }}"
                 class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-emerald-300 dark:hover:border-emerald-500 hover:shadow-md transition duration-200 group">
                 <div class="flex items-start">
                     <div
@@ -215,15 +124,15 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                     <div>
                         <h3
                             class="font-semibold text-slate-800 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
-                            Scan
-                            Pengembalian</h3>
+                            Scan Pengembalian</h3>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Proses pengembalian
                             barang</p>
                     </div>
                 </div>
             </a>
 
-            <a href="histori.php"
+            <!-- Histori Peminjaman -->
+            <a href="{{ route('admin.histori.index') }}"
                 class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-md transition duration-200 group">
                 <div class="flex items-start">
                     <div
@@ -237,15 +146,15 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                     <div>
                         <h3
                             class="font-semibold text-slate-800 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition">
-                            Histori
-                            Peminjaman</h3>
+                            Histori Peminjaman</h3>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Lihat riwayat dan
                             laporan</p>
                     </div>
                 </div>
             </a>
 
-            <a href="/admin/tiket"
+            <!-- Tiket Kerusakan (Already Migrated) -->
+            <a href="{{ route('admin.tiket.index') }}"
                 class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-red-300 dark:hover:border-red-500 hover:shadow-md transition duration-200 group">
                 <div class="flex items-start">
                     <div
@@ -269,9 +178,5 @@ $aktivePeminjaman = $stmt->fetch()['total'];
 
         </div>
 
-    </main>
-
-    <script src="/src/assets/js/main.js?v=<?= time() ?>"></script>
-</body>
-
-</html>
+    </div>
+@endsection
