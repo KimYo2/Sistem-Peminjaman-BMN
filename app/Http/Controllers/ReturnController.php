@@ -78,7 +78,7 @@ class ReturnController extends Controller
                 ], 404);
             }
 
-            $waktu_kembali = now();
+            $waktu_kembali = \Carbon\Carbon::now('Asia/Jakarta');
 
             // Use found NUP from peminjaman if strict NUP was not possible (e.g. only code scanned)
             $target_nup = $peminjaman->nup;
@@ -96,14 +96,28 @@ class ReturnController extends Controller
                         'waktu_kembali' => $waktu_kembali
                     ]);
 
-                if ($request->is_damaged && $request->is_damaged != 'false') {
-                    \App\Models\TiketKerusakan::create([
+                // Create damage ticket if item is damaged
+                $isDamagedValue = $request->is_damaged;
+                $shouldCreateTicket = ($isDamagedValue === true || $isDamagedValue === 'true' || $isDamagedValue === 1 || $isDamagedValue === '1');
+
+                \Log::info('Damage ticket check', [
+                    'is_damaged_raw' => $isDamagedValue,
+                    'is_damaged_type' => gettype($isDamagedValue),
+                    'should_create' => $shouldCreateTicket,
+                    'jenis_kerusakan' => $request->jenis_kerusakan,
+                    'deskripsi' => $request->deskripsi
+                ]);
+
+                if ($shouldCreateTicket) {
+                    $ticket = \App\Models\TiketKerusakan::create([
                         'nomor_bmn' => $kode_barang . '-' . $target_nup,
                         'pelapor' => $user->name ?? 'System',
-                        'jenis_kerusakan' => $request->jenis_kerusakan,
+                        'jenis_kerusakan' => $request->jenis_kerusakan ?? 'ringan',
                         'deskripsi' => $request->deskripsi ?? '-',
                         'status' => 'open'
                     ]);
+
+                    \Log::info('Damage ticket created', ['ticket_id' => $ticket->id]);
                 }
             });
 

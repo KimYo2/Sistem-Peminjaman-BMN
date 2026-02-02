@@ -20,4 +20,6 @@ class TiketKerusakan extends Model
     protected $casts = [
         'tanggal_lapor' => 'datetime',
     ];
+
+    public $timestamps = false;
 }

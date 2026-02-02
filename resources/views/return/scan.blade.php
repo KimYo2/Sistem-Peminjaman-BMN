@@ -86,58 +86,62 @@
         </div>
         </div>
 
-        <!-- Confirmation Section -->
-        <div x-show="scannedCode && !resultHtml" id="confirmation-area" x-cloak class="mb-6">
+        <!-- Confirmation & Damage Form -->
+        <div x-show="scannedCode && !resultHtml" x-cloak class="space-y-6">
+
+            <!-- Barang Terdeteksi Box -->
             <div
-                class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-5 mb-6 text-center">
-                <p class="text-sm text-indigo-600 dark:text-indigo-300 mb-1">Kode Barang Terdeteksi:</p>
-                <p class="text-xl font-bold text-indigo-900 dark:text-white font-mono break-all" x-text="scannedCode"></p>
-            </div>
-        </div>
-
-        <!-- Damage Ticket Form & Actions -->
-        <div x-show="scannedCode && !resultHtml" x-cloak
-            class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 p-6 mb-6 transition-colors">
-
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Laporan Kondisi Barang</h3>
-
-            <div class="flex items-center mb-6">
-                <input id="damaged-checkbox" type="checkbox" x-model="isDamaged"
-                    class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                <label for="damaged-checkbox" class="ml-2 text-sm font-medium text-slate-900 dark:text-slate-300">
-                    Barang mengalami kerusakan
-                </label>
+                class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-5 text-center">
+                <p class="text-sm text-indigo-600 dark:text-indigo-300 mb-1">Barang Terdeteksi:</p>
+                <p class="text-2xl font-bold text-indigo-900 dark:text-white font-mono" x-text="scannedCode"></p>
+                <p class="text-xs text-indigo-500 dark:text-indigo-400 mt-2" x-show="isRawBPS">Formatted from BPS QR</p>
             </div>
 
-            <div x-show="isDamaged" x-transition class="space-y-4 mb-6">
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Jenis Kerusakan</label>
-                    <select x-model="damageType"
-                        class="bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                        <option value="ringan">Ringan (Lecet/Gores)</option>
-                        <option value="berat">Berat (Pecah/Mati/Rusak Fungsi)</option>
-                    </select>
+            <!-- Damage Form -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 p-6 transition-colors">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Laporan Kondisi Barang</h3>
+
+                <div class="flex items-center mb-6">
+                    <input id="damaged-checkbox" type="checkbox" x-model="isDamaged"
+                        class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                    <label for="damaged-checkbox" class="ml-2 text-sm font-medium text-slate-900 dark:text-slate-300">
+                        Barang mengalami kerusakan
+                    </label>
                 </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Deskripsi Kerusakan</label>
-                    <textarea x-model="damageDescription" rows="3"
-                        class="block p-2.5 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-slate-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white"
-                        placeholder="Jelaskan detail kerusakan yang terjadi..."></textarea>
-                </div>
-            </div>
 
-            <div class="flex flex-col gap-3">
-                <button @click="processReturn()"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Konfirmasi Pengembalian
-                </button>
-                <button @click="resetScan()"
-                    class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-semibold py-3 px-4 rounded-lg transition duration-200">
-                    Batal / Scan Ulang
-                </button>
+                <div x-show="isDamaged" x-transition class="space-y-4 mb-6">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Jenis Kerusakan</label>
+                        <select x-model="damageType"
+                            class="bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="ringan">Ringan (Lecet/Gores)</option>
+                            <option value="berat">Berat (Pecah/Mati/Rusak Fungsi)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Deskripsi
+                            Kerusakan</label>
+                        <textarea x-model="damageDescription" rows="3"
+                            class="block p-2.5 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-slate-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white"
+                            placeholder="Jelaskan detail kerusakan yang terjadi..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col gap-3">
+                    <button @click="processReturn()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Konfirmasi Pengembalian
+                    </button>
+                    <button @click="resetScan()"
+                        class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-semibold py-3 px-4 rounded-lg transition duration-200">
+                        Batal / Scan Ulang
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -153,6 +157,7 @@
                 Alpine.data('returnPage', () => ({
                     mode: 'camera',
                     isDamaged: false,
+                    isRawBPS: false,
                     damageType: 'ringan',
                     damageDescription: '',
                     resultHtml: '',
@@ -239,29 +244,32 @@
                     },
 
                     async handleScan(decodedText) {
-                        this.scannedCode = decodedText;
+                        console.log('Raw Scan:', decodedText);
                         await this.stopScanner();
-                        // Do NOT auto-submit. User must verify and click "Proses"
-                        this.resultHtml = `
-                                            <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 text-center border border-slate-200 dark:border-slate-700">
-                                                <div class="mb-4">
-                                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Barang Terdeteksi</h3>
-                                                    <p class="text-blue-600 font-mono text-xl my-2">${decodedText}</p>
-                                                    <p class="text-sm text-slate-500 dark:text-slate-400">Silahkan isi form kerusakan di atas (jika ada) lalu klik konfirmasi.</p>
-                                                </div>
-                                                <button @click="submitReturn('${decodedText}')"
-                                                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full transition shadow-lg">
-                                                    Proses Pengembalian
-                                                </button>
-                                                <button @click="resetScan()"
-                                                    class="mt-3 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 text-sm underline">
-                                                    Scan Ulang
-                                                </button>
-                                            </div>
-                                        `;
+
+                        // Parse BPS QR Code if detected (Format: INV-...*...*CODE*NUP)
+                        if (decodedText.includes('*')) {
+                            const parts = decodedText.split('*');
+                            // Usually parts[2] is Code, parts[3] is NUP
+                            if (parts.length >= 4) {
+                                this.scannedCode = parts[2].trim() + '-' + parts[3].trim();
+                                this.isRawBPS = true;
+                            } else {
+                                this.scannedCode = decodedText;
+                                this.isRawBPS = false;
+                            }
+                        } else {
+                            this.scannedCode = decodedText;
+                            this.isRawBPS = false;
+                        }
+
+                        // Clear resultHtml (to show form)
+                        this.resultHtml = '';
                     },
 
-                    async submitReturn(code) {
+                    async processReturn() {
+                        if (!this.scannedCode) return;
+
                         // Show loading state
                         this.resultHtml = `
                                             <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 text-center border border-slate-200 dark:border-slate-700">
@@ -271,65 +279,69 @@
                                         `;
 
                         try {
+                            const payload = {
+                                nomor_bmn: this.scannedCode,
+                                is_damaged: this.isDamaged,
+                                jenis_kerusakan: this.damageType,
+                                deskripsi: this.damageDescription
+                            };
+
+                            console.log('Sending payload:', payload);
+
                             const response = await fetch("{{ route('return.store') }}", {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                                 },
-                                body: JSON.stringify({
-                                    nomor_bmn: code,
-                                    is_damaged: this.isDamaged,
-                                    jenis_kerusakan: this.damageType,
-                                    deskripsi: this.damageDescription
-                                })
+                                body: JSON.stringify(payload)
                             });
 
                             const result = await response.json();
 
                             if (result.success) {
                                 this.resultHtml = `
-                                                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
-                                                        <div class="flex items-center mb-4 gap-4">
-                                                            <div class="bg-green-100 dark:bg-green-800 rounded-full p-2">
-                                                                <svg class="w-8 h-8 text-green-600 dark:text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                                </svg>
-                                                            </div>
-                                                            <div class="text-left">
-                                                                <h3 class="text-lg font-bold text-green-900 dark:text-green-200">Berhasil!</h3>
-                                                                <p class="text-green-800 dark:text-green-300">${result.message}</p>
-                                                            </div>
-                                                        </div>
-                                                        <button @click="resetScan()" 
-                                                            class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold py-3 px-4 rounded-lg transition">
-                                                            Scan Barang Lain
-                                                        </button>
-                                                    </div>
-                                                `;
+                                                                                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                                                                                        <div class="flex items-center mb-4 gap-4">
+                                                                                            <div class="bg-green-100 dark:bg-green-800 rounded-full p-2">
+                                                                                                <svg class="w-8 h-8 text-green-600 dark:text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                                                </svg>
+                                                                                            </div>
+                                                                                            <div class="text-left">
+                                                                                                <h3 class="text-lg font-bold text-green-900 dark:text-green-200">Berhasil!</h3>
+                                                                                                <p class="text-green-800 dark:text-green-300">${result.message}</p>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <button @click="resetScan()" 
+                                                                                            class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold py-3 px-4 rounded-lg transition">
+                                                                                            Scan Barang Lain
+                                                                                        </button>
+                                                                                    </div>
+                                                                                `;
                             } else {
                                 throw new Error(result.message);
                             }
                         } catch (error) {
                             this.resultHtml = `
-                                                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-                                                    <div class="flex items-center mb-4 gap-4">
-                                                        <div class="bg-red-100 dark:bg-red-800 rounded-full p-2">
-                                                            <svg class="w-8 h-8 text-red-600 dark:text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                            </svg>
-                                                        </div>
-                                                        <div class="text-left">
-                                                            <h3 class="text-lg font-bold text-red-900 dark:text-red-200">Gagal</h3>
-                                                            <p class="text-red-800 dark:text-red-300">${error.message || 'Terjadi kesalahan sistem'}</p>
-                                                        </div>
-                                                    </div>
-                                                    <button @click="resetScan()" 
-                                                        class="w-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-800 dark:text-red-200 font-semibold py-3 px-4 rounded-lg transition">
-                                                        Coba Lagi
-                                                    </button>
-                                                </div>
-                                            `;
+                                                                                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                                                                                    <div class="flex items-center mb-4 gap-4">
+                                                                                        <div class="bg-red-100 dark:bg-red-800 rounded-full p-2">
+                                                                                            <svg class="w-8 h-8 text-red-600 dark:text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                                            </svg>
+                                                                                        </div>
+                                                                                        <div class="text-left">
+                                                                                            <h3 class="text-lg font-bold text-red-900 dark:text-red-200">Gagal</h3>
+                                                                                            <p class="text-red-800 dark:text-red-300">${error.message || 'Terjadi kesalahan sistem'}</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <button @click="resetScan()" 
+                                                                                        class="w-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-800 dark:text-red-200 font-semibold py-3 px-4 rounded-lg transition">
+                                                                                        Coba Lagi
+                                                                                    </button>
+                                                                                </div>
+                                                                            `;
                         }
                     },
 
@@ -352,11 +364,11 @@
 
                         // Show loading state
                         this.resultHtml = `
-                                    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 text-center border border-slate-200 dark:border-slate-700">
-                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                        <p class="text-slate-600 dark:text-slate-400">Memproses gambar...</p>
-                                    </div>
-                                `;
+                                                                    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 text-center border border-slate-200 dark:border-slate-700">
+                                                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                                                        <p class="text-slate-600 dark:text-slate-400">Memproses gambar...</p>
+                                                                    </div>
+                                                                `;
 
                         scanner.scanFile(file, true)
                             .then(decodedText => {
@@ -367,11 +379,11 @@
                                 console.error('File scan error:', err);
                                 scanner.clear();
                                 this.resultHtml = `
-                                            <div class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4 text-center">
-                                                <p class="font-bold">Gagal membaca QR Code.</p>
-                                                <p class="text-sm">Pastikan gambar jelas dan memuat QR Code yang valid.</p>
-                                            </div>
-                                        `;
+                                                                            <div class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4 text-center">
+                                                                                <p class="font-bold">Gagal membaca QR Code.</p>
+                                                                                <p class="text-sm">Pastikan gambar jelas dan memuat QR Code yang valid.</p>
+                                                                            </div>
+                                                                        `;
                             });
                     }
                 }))
