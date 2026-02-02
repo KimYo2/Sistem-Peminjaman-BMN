@@ -102,9 +102,8 @@ Ini akan membuat:
 
 ### 3. Akses Aplikasi
 
-Buka browser dan akses:
-```
-http://localhost:8000
+Buka browser dan akses: 
+http://pinjam_qr.test
 ```
 
 
