@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem Peminjaman BMN</title>
+    <link rel="icon" href="{{ asset('bps_logo.png') }}" type="image/png">
     <!-- Use the same Tailwind config/script as legacy or verify if we have a layout -->
     <!-- Ideally we should use the same resources as app layout but this page is standalone -->
     <script src="https://cdn.tailwindcss.com"></script>
