@@ -31,6 +31,7 @@ Sistem ini dirancang untuk memudahkan pegawai BPS dalam meminjam barang inventar
 
 ## 📁 Struktur Folder
 
+```text
 pinjam_qr/
 ├── app/
 │   ├── Http/
@@ -52,6 +53,7 @@ pinjam_qr/
 ├── database/
 │   └── migrations/              # Definisi Schema Database
 └── README.md
+```
 
 
 ## 💾 Instalasi
