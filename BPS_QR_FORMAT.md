@@ -32,31 +32,21 @@ INV-[timestamp]*[kode1]*[kode2]*[NOMOR_BMN]*[nomor_urut]
 | **4** | **`3100102001`** | **NOMOR BMN** ⭐ |
 | 5 | `37` | Nomor urut |
 
-## ✅ Parser Implementation
+## ✅ Parser Implementation (New Logic)
 
 ### JavaScript Parser
 
 ```javascript
-function parseBPSQRCode(qrText) {
-    // Check if QR contains asterisk delimiter
-    if (qrText.includes('*')) {
-        const parts = qrText.split('*');
-        
-        // BMN number is in the 4th segment (index 3)
-        if (parts.length >= 4) {
-            return parts[3].trim();
-        }
-        
-        // Fallback: find segment starting with "31"
-        for (let part of parts) {
-            if (part.match(/^31\d{8}/)) {
-                return part.trim();
-            }
-        }
+// Parse BPS QR Code if detected (Format: INV-...*...*CODE*NUP)
+if (decodedText.includes('*')) {
+    const parts = decodedText.split('*');
+    // Usually parts[2] is Code, parts[3] is NUP
+    if (parts.length >= 4) {
+        this.scannedCode = parts[2].trim() + '-' + parts[3].trim();
+        this.isRawBPS = true;
+    } else {
+        this.scannedCode = decodedText; // Fallback
     }
-    
-    // If no asterisk, assume it's already BMN
-    return qrText.trim();
 }
 ```
 
@@ -64,12 +54,13 @@ function parseBPSQRCode(qrText) {
 
 **Input:**
 ```
-INV-20210420145333129398000*054010300C*190000000KD*3100102001*37
+INV-20210420...*054010300C*3100102001*37
 ```
+*(Refleksi struktur baru: Index 2 = Kode Barang, Index 3 = NUP)*
 
 **Output:**
 ```
-3100102001
+3100102001-37
 ```
 
 ## 🎯 Cara Kerja Sistem
@@ -79,42 +70,26 @@ INV-20210420145333129398000*054010300C*190000000KD*3100102001*37
 ```
 1. Scan QR Code BPS
    ↓
-2. Decode QR → "INV-xxx*xxx*xxx*3100102001*37"
+2. Decode QR → "INV...*UNIT*3100102001*37"
    ↓
-3. Parse dengan split('*')
+3. Cek delimiter asterisk ('*')
    ↓
-4. Ambil segment ke-4 → "3100102001"
+4. Split string dengan '*'
    ↓
-5. Query database: SELECT * FROM barang WHERE nomor_bmn = '3100102001'
+5. Ambil Part[2] (Kode Barang) dan Part[3] (NUP)
    ↓
-6. Tampilkan detail barang
+6. Gabungkan dengan hyphen: "3100102001-37"
+   ↓
+7. Query database untuk pencarian spesifik (Kode + NUP)
 ```
 
-### Fallback Logic
+### Logic Baru
 
-1. **Jika ada asterisk** → Split dan ambil segment ke-4
-2. **Jika tidak ada asterisk** → Gunakan langsung sebagai BMN
-3. **Jika segment ke-4 kosong** → Cari pattern `31xxxxxxxx`
-
-## 📝 Catatan Penting
-
-### Format Nomor BMN BPS
-
-- Selalu dimulai dengan `31` (kode aset)
-- Total 10 digit
-- Contoh: `3100102001`, `3100102002`, `3100203003`
-
-### Variasi Format QR
-
-QR Code BPS bisa berbeda-beda tergantung:
-- Tahun pembuatan
-- Unit/lokasi
-- Jenis barang
-
-**Parser sudah handle:**
-- ✅ Format dengan delimiter `*`
-- ✅ Format tanpa delimiter (plain BMN)
-- ✅ Fallback pattern matching
+- **Format Target**: `[KodeBarang]-[NUP]`
+- **Sumber Data**: 
+    - `parts[2]` → Kode Barang (10 digit, e.g. 310xxxxxxxx)
+    - `parts[3]` → NUP (Nomor Urut Pendaftaran, 1-3 digit)
+- **Tujuan**: Memungkinkan identifikasi barang yang lebih spesifik karena kombinasi Kode+NUP adalah unique key yang sebenarnya.
 
 ## 🧪 Testing
 
