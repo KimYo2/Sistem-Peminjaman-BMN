@@ -11,7 +11,7 @@ $user = getCurrentUser();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan Pengembalian - Sistem Peminjaman BMN</title>
-    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=3">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -172,7 +172,7 @@ $user = getCurrentUser();
         <div id="scan-result"></div>
     </main>
 
-    <script src="/src/assets/js/main.js?v=<?= time() ?>"></script>
+    <script src="/src/assets/js/main.js?v=3"></script>
     <script src="/src/assets/js/qr-scanner.js"></script>
     <script>
         // Override handleQRScan for admin return flow
@@ -195,9 +195,9 @@ $user = getCurrentUser();
 
             // Parse BMN if needed (reuse parser from qr-scanner.js via handleQRScan internal logic? No, we override it.)
             // We need to parse it ourselves because we overrode the function that does it!
-            
+
             let nomorBMN = decodedText;
-            
+
             // Re-implement parsing logic here since we overrode the default handleQRScan
             if (typeof parseBPSQRCode === 'function') {
                 nomorBMN = parseBPSQRCode(decodedText);

@@ -25,7 +25,7 @@ $aktivePeminjaman = $stmt->fetch()['total'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Sistem Peminjaman BMN</title>
-    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=3">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -241,6 +241,28 @@ $aktivePeminjaman = $stmt->fetch()['total'];
                             Peminjaman</h3>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Lihat riwayat dan
                             laporan</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/admin/tiket"
+                class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-red-300 dark:hover:border-red-500 hover:shadow-md transition duration-200 group">
+                <div class="flex items-start">
+                    <div
+                        class="bg-red-50 dark:bg-red-900/30 rounded-lg p-3 mr-4 group-hover:bg-red-100 dark:group-hover:bg-red-900/50 transition">
+                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3
+                            class="font-semibold text-slate-800 dark:text-white group-hover:text-red-700 dark:group-hover:text-red-400 transition">
+                            Tiket Kerusakan</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Kelola laporan
+                            kerusakan</p>
                     </div>
                 </div>
             </a>
