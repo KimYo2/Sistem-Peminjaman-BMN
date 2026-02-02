@@ -17,7 +17,7 @@ $user = getCurrentUser();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Barang - Sistem Peminjaman BMN</title>
-    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css">
+    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=<?= time() ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -260,6 +260,7 @@ $user = getCurrentUser();
             }
         });
     </script>
+    <script src="/src/assets/js/main.js?v=<?= time() ?>"></script>
 </body>
 
 </html>

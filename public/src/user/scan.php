@@ -201,6 +201,7 @@ $user = getCurrentUser();
     </main>
 
     <script src="/src/assets/js/main.js?v=<?= time() ?>"></script>
+    <link rel="stylesheet" href="/src/assets/css/light-mode-override.css?v=<?= time() ?>">
     <script src="/src/assets/js/qr-scanner.js?v=<?= time() ?>"></script>
     <script>
         // Initialize camera scanner on page load (default mode)

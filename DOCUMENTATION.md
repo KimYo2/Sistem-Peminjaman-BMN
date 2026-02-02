@@ -409,6 +409,45 @@ tailwind.config = {
 
 ---
 
+9. [Troubleshooting Guide](#troubleshooting-guide)
+
+---
+
+## Troubleshooting Guide
+
+### 📱 Masalah Tampilan di HP (Mobile)
+
+**Masalah**: Tampilan di HP masih versi lama atau berantakan setelah update.  
+**Penyebab**: Browser HP melakukan caching agresif terhadap file CSS/JS.  
+**Solusi**:
+1. **Cache Busting (Implemented)**: Sistem sudah diupdate dengan `?v=time()` pada setiap link CSS/JS. Ini memaksa browser untuk selalu mengambil file versi terbaru.
+2. **Refresh Hard**: Tarik layar ke bawah (pull-to-refresh) beberapa kali.
+3. **Incognito Mode**: Coba buka menggunakan "New Incognito Tab" atau "Private Mode".
+4. **Clear Cache**: Hapus cache browser jika masalah berlanjut.
+
+### 🌐 Akses Local Network (Laravel Serve)
+
+Agar website bisa dibuka dari HP:
+
+1. **Jalankan Server dengan Host 0.0.0.0**:
+   ```bash
+   php artisan serve --host=0.0.0.0 --port=8000
+   ```
+   *Atau jika menggunakan php built-in server:*
+   ```bash
+   php -S 0.0.0.0:8000 -t public
+   ```
+
+2. **Cek IP Address Komputer**:
+   - Buka CMD -> ketik `ipconfig`
+   - Cari **IPv4 Address** (contoh: `192.168.1.15`)
+
+3. **Akses dari HP**:
+   - Pastikan HP dan Laptop di WiFi yang sama
+   - Buka browser HP -> ketik `http://192.168.1.15:8000` (Ganti IP sesuai komputer Anda)
+
+---
+
 ## Final Result
 
 ### Light Mode

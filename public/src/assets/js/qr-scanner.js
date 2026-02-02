@@ -38,7 +38,68 @@ async function initQRScanner(onScanSuccess) {
         currentMode = 'camera';
     } catch (err) {
         console.error('Error starting QR scanner:', err);
-        showToast('Gagal mengakses kamera. Pastikan izin kamera diberikan.', 'error');
+
+        // Detailed error handling
+        let errorMessage = 'Gagal mengakses kamera. Pastikan izin kamera diberikan.';
+        let detailedHelp = '';
+        let isSecureContextError = false;
+
+        // Check for insecure context (HTTP on non-localhost)
+        if (location.protocol !== 'https:' &&
+            location.hostname !== 'localhost' &&
+            location.hostname !== '127.0.0.1' &&
+            !location.hostname.startsWith('192.168.')) { // 192.168 might be allowed by some flags but usually blocked
+            // Actually, browsers block mostly everything non-localhost.
+        }
+
+        // Specific error messages
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            errorMessage = 'Izin kamera ditolak.';
+            detailedHelp = 'Silakan izinkan akses kamera di pengaturan browser Anda.';
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            errorMessage = 'Kamera tidak ditemukan.';
+            detailedHelp = 'Pastikan perangkat Anda memiliki kamera yang berfungsi.';
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+            errorMessage = 'Kamera sedang digunakan aplikasi lain.';
+            detailedHelp = 'Tutup aplikasi lain yang menggunakan kamera.';
+        } else if (err.name === 'OverconstrainedError') {
+            errorMessage = 'Kamera tidak kompatibel.';
+            detailedHelp = 'Kamera depan/belakang yang diminta tidak tersedia.';
+        } else if (err.name === 'SecurityError' || err.name === 'SecureContextCodes' || !window.isSecureContext) {
+            isSecureContextError = true;
+            errorMessage = 'Akses Kamera Dibatasi Browser';
+            detailedHelp = `
+                Browser memblokir kamera di jaringan lokal (HTTP).<br>
+                Solusi:<br>
+                1. Gunakan fitur <strong>Upload Gambar</strong> di bawah.<br>
+                2. Atau atur browser flags: <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>
+            `;
+        }
+
+        // Show toast
+        showToast(errorMessage, 'error');
+
+        // Inject helper UI into the reader element
+        qrReaderElement.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full p-6 text-center bg-gray-50 dark:bg-slate-800 rounded-lg">
+                <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">${errorMessage}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+                    ${detailedHelp || 'Silakan cek pengaturan izin browser Anda.'}
+                </p>
+                ${isSecureContextError ? `
+                <button onclick="switchScannerMode('file')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                    Gunakan Upload Gambar
+                </button>
+                ` : `
+                <button onclick="location.reload()" class="bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 font-semibold py-2 px-6 rounded-lg transition duration-200">
+                    Coba Lagi
+                </button>
+                `}
+            </div>
+        `;
     }
 }
 
