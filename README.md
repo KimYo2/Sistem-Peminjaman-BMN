@@ -24,7 +24,7 @@ Sistem ini dirancang untuk memudahkan pegawai BPS dalam meminjam barang inventar
 
 ## 🛠️ Teknologi
 
-- **Backend**: PHP Native (PDO untuk database)
+- **Backend**: Laravel (PHP)
 - **Database**: MySQL
 - **Frontend**: HTML5, Tailwind CSS (via CDN), JavaScript
 - **QR Scanner**: html5-qrcode library
@@ -35,20 +35,25 @@ Sistem ini dirancang untuk memudahkan pegawai BPS dalam meminjam barang inventar
 pinjam_qr/
 ├── app/
 │   ├── Http/
-│   │   └── Controllers/
-│   │       ├── Admin/           # Controller Admin (Barang, Histori)
-│   │       ├── Auth/            # Controller Login/Logout
-│   │       └── User/            # Controller User (Dashboard, Peminjaman)
-│   └── Models/                  # Model Eloquent (User, Barang, Histori)
+│   │   ├── Controllers/
+│   │   │   ├── Admin/           # Controller Admin (Barang, Histori, Tiket)
+│   │   │   ├── Auth/            # Controller Login/Logout
+│   │   │   ├── User/            # Controller User (Dashboard, Scan, Peminjaman)
+│   │   │   └── Concerns/        # Trait helper (Audit Log)
+│   │   └── Middleware/          # Middleware (Auth, EnsureAdmin)
+│   └── Models/                  # Model Eloquent (User, Barang, Histori, AuditLog)
 ├── resources/
 │   └── views/
 │       ├── admin/               # View Admin (Blade)
 │       ├── auth/                # View Login
 │       ├── layouts/             # Master Layout (Tailwind)
+│       ├── return/              # View Scan Pengembalian
 │       └── user/                # View User
 ├── routes/
 │   └── web.php                  # Definisi Route Aplikasi
 ├── public/                      # Entry point & Assets
+│   ├── css/                      # CSS tambahan (fallback theme)
+│   ├── js/                       # JS tambahan (theme toggle)
 │   └── index.php
 ├── database/
 │   └── migrations/              # Definisi Schema Database
