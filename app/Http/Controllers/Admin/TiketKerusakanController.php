@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\LogsAudit;
 use Illuminate\Http\Request;
 
 class TiketKerusakanController extends Controller
 {
+    use LogsAudit;
     public function index(Request $request)
     {
         $query = \App\Models\TiketKerusakan::query()->orderBy('tanggal_lapor', 'desc');
@@ -28,6 +30,11 @@ class TiketKerusakanController extends Controller
 
         $ticket = \App\Models\TiketKerusakan::findOrFail($id);
         $ticket->update(['status' => $request->status]);
+
+        $this->logAudit('update', 'tiket_kerusakan', $ticket->id, [
+            'status' => $request->status,
+            'nomor_bmn' => $ticket->nomor_bmn,
+        ]);
 
         return redirect()->back()->with('success', 'Status tiket berhasil diperbarui.');
     }

@@ -70,39 +70,38 @@ class BarangController extends Controller
             ], 400);
         }
 
+        $hasPendingOrActive = HistoriPeminjaman::where('kode_barang', $kode_barang)
+            ->where('nup', $nup)
+            ->whereIn('status', ['menunggu', 'dipinjam'])
+            ->exists();
+
+        if ($hasPendingOrActive) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barang sedang diproses peminjaman atau masih dipinjam.'
+            ], 400);
+        }
+
         $user = Auth::user();
-        $waktu_pinjam = Carbon::now('Asia/Jakarta');
+        $waktu_pengajuan = Carbon::now('Asia/Jakarta');
 
         try {
-            DB::transaction(function () use ($barang, $user, $waktu_pinjam, $kode_barang, $nup) {
-                // Update barang status
-                $barang->update([
-                    'ketersediaan' => 'dipinjam',
-                    'peminjam_terakhir' => $user->nama,
-                    'waktu_pinjam' => $waktu_pinjam,
-                    'waktu_kembali' => null,
-                ]);
-
-                // Insert into histori
+            DB::transaction(function () use ($user, $waktu_pengajuan, $kode_barang, $nup) {
+                // Create pending loan request (awaiting admin approval)
                 HistoriPeminjaman::create([
                     'kode_barang' => $kode_barang,
                     'nup' => $nup,
                     'nip_peminjam' => $user->nip,
-                    // 'nama_peminjam' => $user->nama, // Assuming table has this, legacy code inserted it. 
-                    // Let's check model fillable. If model doesn't have it, we might need to rely on relation or add it.
-                    // Legacy code: INSERT INTO histori_peminjaman ... nama_peminjam ...
-                    // Let's check if our HistoriPeminjaman model has 'nama_peminjam' in fillable.
-                    // I'll add it to fillable below if needed, but for now I'll include it in create array 
-                    // assuming the DB has the column (which legacy code proves).
                     'nama_peminjam' => $user->nama,
-                    'waktu_pinjam' => $waktu_pinjam,
-                    'status' => 'dipinjam',
+                    'waktu_pengajuan' => $waktu_pengajuan,
+                    'waktu_pinjam' => null,
+                    'status' => 'menunggu',
                 ]);
             });
 
             return response()->json([
                 'success' => true,
-                'message' => 'Peminjaman berhasil diajukan',
+                'message' => 'Permintaan peminjaman berhasil dikirim dan menunggu persetujuan admin.',
                 'redirect_url' => route('user.dashboard')
             ]);
         } catch (\Exception $e) {

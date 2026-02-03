@@ -17,7 +17,7 @@
             </div>
 
             <!-- Optional: Export Button Placeholder (Legacy had it) -->
-            <a href="/src/api/export_histori.php" target="_blank"
+            <a href="{{ route('admin.histori.export', request()->query()) }}"
                 class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium py-2 px-4 rounded-lg transition inline-flex items-center gap-2 shadow-sm text-sm">
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
@@ -39,10 +39,13 @@
                     <select name="status" onchange="this.form.submit()"
                         class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
                         <option value="">Semua Status</option>
+                        <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu Persetujuan
+                        </option>
                         <option value="dipinjam" {{ request('status') == 'dipinjam' ? 'selected' : '' }}>Sedang Dipinjam
                         </option>
                         <option value="dikembalikan" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>Sudah
                             Dikembalikan</option>
+                        <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
                 </div>
                 <div class="flex items-end">
@@ -77,7 +80,9 @@
                             <th class="px-6 py-3 text-left">NIP</th>
                             <th class="px-6 py-3 text-left">Waktu Pinjam</th>
                             <th class="px-6 py-3 text-left">Waktu Kembali</th>
+                            <th class="px-6 py-3 text-left">Jatuh Tempo</th>
                             <th class="px-6 py-3 text-left">Status</th>
+                            <th class="px-6 py-3 text-left">Aksi</th>
                         </tr>
                     </thead>
                     <tbody
@@ -92,22 +97,72 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-xs">
                                     {{ $item->nip_peminjam }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
-                                    {{ \Carbon\Carbon::parse($item->waktu_pinjam)->format('d/m/Y H:i') }}
+                                    @if($item->waktu_pinjam)
+                                        {{ \Carbon\Carbon::parse($item->waktu_pinjam)->format('d/m/Y H:i') }}
+                                    @elseif($item->waktu_pengajuan)
+                                        {{ \Carbon\Carbon::parse($item->waktu_pengajuan)->format('d/m/Y H:i') }}
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
                                     {{ $item->waktu_kembali ? \Carbon\Carbon::parse($item->waktu_kembali)->format('d/m/Y H:i') : '-' }}
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                                    {{ $item->tanggal_jatuh_tempo ? \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->format('d/m/Y') : '-' }}
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span
                                         class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md border 
-                                            {{ $item->status === 'dipinjam' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800' }}">
-                                        {{ $item->status === 'dipinjam' ? 'Sedang Dipinjam' : 'Dikembalikan' }}
+                                            {{ $item->status === 'menunggu'
+                                                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+                                                : ($item->status === 'dipinjam'
+                                                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                                                    : ($item->status === 'ditolak'
+                                                        ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800')) }}">
+                                        {{ $item->status === 'menunggu'
+                                            ? 'Menunggu Persetujuan'
+                                            : ($item->status === 'dipinjam'
+                                                ? 'Sedang Dipinjam'
+                                                : ($item->status === 'ditolak'
+                                                    ? 'Ditolak'
+                                                    : 'Dikembalikan')) }}
                                     </span>
+                                    @if($item->status === 'dipinjam' && $item->tanggal_jatuh_tempo && \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->isPast())
+                                        <span
+                                            class="ml-2 px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md border bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800">
+                                            Terlambat
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($item->status === 'menunggu')
+                                        <div class="flex items-center gap-2">
+                                            <form method="POST" action="{{ route('admin.histori.approve', $item->id) }}">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                                                    Setujui
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.histori.reject', $item->id) }}">
+                                                @csrf
+                                                <input type="hidden" name="rejection_reason" value="Ditolak admin">
+                                                <button type="submit"
+                                                    class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                                                    Tolak
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-slate-400 dark:text-slate-500">-</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                                <td colspan="8" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
                                     <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

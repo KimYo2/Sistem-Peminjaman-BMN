@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\LogsAudit;
 use App\Models\Barang;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class BarangController extends Controller
 {
+    use LogsAudit;
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = Barang::query();
+        $query = Barang::query()->with('pic');
 
         // Filter by Ketersediaan
         if ($request->has('ketersediaan') && $request->ketersediaan != '') {
@@ -41,7 +44,8 @@ class BarangController extends Controller
      */
     public function create()
     {
-        return view('admin.barang.create');
+        $users = User::orderBy('nama')->get();
+        return view('admin.barang.create', compact('users'));
     }
 
     /**
@@ -55,6 +59,7 @@ class BarangController extends Controller
             'brand' => 'required|string|max:100',
             'tipe' => 'required|string|max:100',
             'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
+            'pic_user_id' => 'nullable|exists:users,id',
         ]);
 
         // Check for uniqueness of composite key (kode_barang + nup)
@@ -73,6 +78,12 @@ class BarangController extends Controller
             'tipe' => $request->tipe,
             'kondisi_terakhir' => $request->kondisi,
             'ketersediaan' => 'tersedia', // Default value
+            'pic_user_id' => $request->pic_user_id,
+        ]);
+
+        $this->logAudit('create', 'barang', null, [
+            'kode_barang' => $request->kode_barang,
+            'nup' => $request->nup,
         ]);
 
         return redirect()->route('admin.barang.index')->with('success', 'Barang berhasil ditambahkan');
@@ -92,7 +103,8 @@ class BarangController extends Controller
         // I will change index blade to use route('admin.barang.edit', $item->id).
 
         $barang = Barang::findOrFail($id);
-        return view('admin.barang.edit', compact('barang'));
+        $users = User::orderBy('nama')->get();
+        return view('admin.barang.edit', compact('barang', 'users'));
     }
 
     /**
@@ -108,6 +120,7 @@ class BarangController extends Controller
             'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
             'ketersediaan' => 'required|in:tersedia,dipinjam,hilang,reparasi',
             'keterangan' => 'nullable|string',
+            'pic_user_id' => 'nullable|exists:users,id',
         ]);
 
         $barang->update([
@@ -115,7 +128,13 @@ class BarangController extends Controller
             'tipe' => $request->tipe,
             'kondisi_terakhir' => $request->kondisi,
             'ketersediaan' => $request->ketersediaan,
+            'pic_user_id' => $request->pic_user_id,
             // 'keterangan' => $request->keterangan, // Need to check if model has 'keterangan'
+        ]);
+
+        $this->logAudit('update', 'barang', $barang->id, [
+            'kode_barang' => $barang->kode_barang,
+            'nup' => $barang->nup,
         ]);
 
         // Wait, does Barang model have 'keterangan'? 
@@ -142,6 +161,92 @@ class BarangController extends Controller
         $barang = Barang::findOrFail($id);
         $barang->delete();
 
+        $this->logAudit('delete', 'barang', $barang->id, [
+            'kode_barang' => $barang->kode_barang,
+            'nup' => $barang->nup,
+        ]);
+
         return redirect()->route('admin.barang.index')->with('success', 'Barang berhasil dihapus');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $path = $request->file('file')->getRealPath();
+        $handle = fopen($path, 'r');
+        if ($handle === false) {
+            return back()->withErrors(['file' => 'File tidak dapat dibaca.']);
+        }
+
+        $header = fgetcsv($handle);
+        if ($header === false) {
+            fclose($handle);
+            return back()->withErrors(['file' => 'File kosong atau format CSV tidak valid.']);
+        }
+
+        $normalized = array_map(function ($value) {
+            return strtolower(trim($value));
+        }, $header);
+
+        $hasHeader = in_array('kode_barang', $normalized, true);
+        if (!$hasHeader) {
+            rewind($handle);
+        }
+
+        $inserted = 0;
+        $skipped = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < 4) {
+                $skipped++;
+                continue;
+            }
+
+            $data = [
+                'kode_barang' => trim($row[0] ?? ''),
+                'nup' => (int) trim($row[1] ?? ''),
+                'brand' => trim($row[2] ?? ''),
+                'tipe' => trim($row[3] ?? ''),
+                'kondisi_terakhir' => trim($row[4] ?? 'baik'),
+                'ketersediaan' => trim($row[5] ?? 'tersedia'),
+            ];
+
+            if ($data['kode_barang'] === '' || $data['nup'] <= 0 || $data['brand'] === '' || $data['tipe'] === '') {
+                $skipped++;
+                continue;
+            }
+
+            $exists = Barang::where('kode_barang', $data['kode_barang'])
+                ->where('nup', $data['nup'])
+                ->exists();
+
+            if ($exists) {
+                $skipped++;
+                continue;
+            }
+
+            Barang::create([
+                'kode_barang' => $data['kode_barang'],
+                'nup' => $data['nup'],
+                'brand' => $data['brand'],
+                'tipe' => $data['tipe'],
+                'kondisi_terakhir' => $data['kondisi_terakhir'],
+                'ketersediaan' => $data['ketersediaan'],
+            ]);
+
+            $inserted++;
+        }
+
+        fclose($handle);
+
+        $this->logAudit('import', 'barang', null, [
+            'inserted' => $inserted,
+            'skipped' => $skipped,
+        ]);
+
+        return redirect()->route('admin.barang.index')->with('success', "Import selesai. Berhasil: {$inserted}, dilewati: {$skipped}.");
     }
 }

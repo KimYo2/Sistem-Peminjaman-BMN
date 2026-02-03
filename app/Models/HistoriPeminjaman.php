@@ -13,9 +13,27 @@ class HistoriPeminjaman extends Model
         'nup',
         'nip_peminjam',
         'nama_peminjam',
+        'kondisi_awal',
+        'waktu_pengajuan',
         'waktu_pinjam',
         'waktu_kembali',
         'status',
+        'kondisi_kembali',
+        'catatan_kondisi',
+        'tanggal_jatuh_tempo',
+        'approved_by',
+        'approved_at',
+        'rejected_at',
+        'rejection_reason',
+    ];
+
+    protected $casts = [
+        'waktu_pengajuan' => 'datetime',
+        'waktu_pinjam' => 'datetime',
+        'waktu_kembali' => 'datetime',
+        'tanggal_jatuh_tempo' => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     public $timestamps = false;

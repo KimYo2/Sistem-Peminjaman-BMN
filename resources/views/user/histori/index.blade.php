@@ -20,13 +20,21 @@
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 text-xs px-2 py-1 rounded font-mono">
-                                    {{ $item->nomor_bmn }}
+                                    {{ $item->kode_barang }}-{{ $item->nup }}
                                 </span>
                             </div>
                             <div>
-                                @if ($item->status === 'dipinjam')
+                                @if ($item->status === 'menunggu')
+                                    <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        Menunggu Persetujuan
+                                    </span>
+                                @elseif ($item->status === 'dipinjam')
                                     <span class="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs px-2 py-1 rounded-full font-medium">
                                         Sedang Dipinjam
+                                    </span>
+                                @elseif ($item->status === 'ditolak')
+                                    <span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        Ditolak
                                     </span>
                                 @else
                                     <span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs px-2 py-1 rounded-full font-medium">
@@ -45,8 +53,25 @@
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <span>Pinjam: {{ \Carbon\Carbon::parse($item->waktu_pinjam)->format('d M Y, H:i') }}</span>
+                                <span>
+                                    Pinjam:
+                                    @if($item->waktu_pinjam)
+                                        {{ \Carbon\Carbon::parse($item->waktu_pinjam)->format('d M Y, H:i') }}
+                                    @elseif($item->waktu_pengajuan)
+                                        {{ \Carbon\Carbon::parse($item->waktu_pengajuan)->format('d M Y, H:i') }}
+                                    @else
+                                        -
+                                    @endif
+                                </span>
                             </div>
+                            @if ($item->status === 'dipinjam' && $item->tanggal_jatuh_tempo)
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Jatuh tempo: {{ \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->format('d M Y') }}</span>
+                                </div>
+                            @endif
                             
                             @if ($item->waktu_kembali)
                                 <div class="flex items-center gap-2">

@@ -84,9 +84,19 @@ class ReturnController extends Controller
             $target_nup = $peminjaman->nup;
 
             \Illuminate\Support\Facades\DB::transaction(function () use ($peminjaman, $kode_barang, $target_nup, $waktu_kembali, $nomor_bmn, $request, $user) {
+                $isDamagedValue = $request->is_damaged;
+                $shouldCreateTicket = ($isDamagedValue === true || $isDamagedValue === 'true' || $isDamagedValue === 1 || $isDamagedValue === '1');
+
+                $kondisiKembali = 'baik';
+                if ($shouldCreateTicket) {
+                    $kondisiKembali = ($request->jenis_kerusakan === 'berat') ? 'rusak_berat' : 'rusak_ringan';
+                }
+
                 $peminjaman->update([
                     'status' => 'dikembalikan',
                     'waktu_kembali' => $waktu_kembali,
+                    'kondisi_kembali' => $kondisiKembali,
+                    'catatan_kondisi' => $request->deskripsi,
                 ]);
 
                 \App\Models\Barang::where('kode_barang', $kode_barang)
@@ -97,9 +107,6 @@ class ReturnController extends Controller
                     ]);
 
                 // Create damage ticket if item is damaged
-                $isDamagedValue = $request->is_damaged;
-                $shouldCreateTicket = ($isDamagedValue === true || $isDamagedValue === 'true' || $isDamagedValue === 1 || $isDamagedValue === '1');
-
                 \Log::info('Damage ticket check', [
                     'is_damaged_raw' => $isDamagedValue,
                     'is_damaged_type' => gettype($isDamagedValue),

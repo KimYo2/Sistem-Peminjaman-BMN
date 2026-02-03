@@ -11,14 +11,25 @@
                 </p>
             </div>
 
-            <!-- We'll migrate tambah_barang next, linking to legacy for now or stub -->
-            <a href="{{ route('admin.barang.create') }}"
-                class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Barang
-            </a>
+            <div class="flex items-center gap-3">
+                <form action="{{ route('admin.barang.import') }}" method="POST" enctype="multipart/form-data"
+                    class="flex items-center gap-2">
+                    @csrf
+                    <label
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                        Import CSV
+                        <input type="file" name="file" accept=".csv" class="hidden" onchange="this.form.submit()">
+                    </label>
+                </form>
+
+                <a href="{{ route('admin.barang.create') }}"
+                    class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Tambah Barang
+                </a>
+            </div>
         </div>
 
         <!-- Filters -->
@@ -68,6 +79,7 @@
                             <th class="px-6 py-3 text-left">Kondisi</th>
                             <th class="px-6 py-3 text-left">Status</th>
                             <th class="px-6 py-3 text-left">Peminjam</th>
+                            <th class="px-6 py-3 text-left">PIC</th>
                             <th class="px-6 py-3 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -103,6 +115,9 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-xs">
                                                 {{ $item->peminjam_terakhir ?? '-' }}
                                             </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300 text-xs">
+                                                {{ $item->pic ? $item->pic->nama : '-' }}
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <div class="flex items-center justify-center gap-2">
                                                     <a href="{{ route('admin.barang.edit', $item->id) }}"
@@ -133,7 +148,7 @@
                                         </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                                <td colspan="8" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
                                     <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

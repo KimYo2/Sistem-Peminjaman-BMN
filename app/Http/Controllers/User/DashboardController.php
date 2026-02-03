@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\HistoriPeminjaman;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,6 +13,9 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         // Note: We assume the User model has a 'nip' attribute. 
         // If not, we might need to rely on 'username' or another field depending on how Auth is set up.
@@ -32,6 +36,19 @@ class DashboardController extends Controller
             ->orderBy('waktu_pinjam', 'desc')
             ->first();
 
+        $now = Carbon::now('Asia/Jakarta');
+        $overdueLoans = HistoriPeminjaman::where('nip_peminjam', $user->nip)
+            ->where('status', 'dipinjam')
+            ->whereNotNull('tanggal_jatuh_tempo')
+            ->where('tanggal_jatuh_tempo', '<', $now)
+            ->count();
+
+        $nextDueLoan = HistoriPeminjaman::where('nip_peminjam', $user->nip)
+            ->where('status', 'dipinjam')
+            ->whereNotNull('tanggal_jatuh_tempo')
+            ->orderBy('tanggal_jatuh_tempo', 'asc')
+            ->first();
+
         // Get recent 5 history items with Join for composite key (kode_barang + nup)
         $recentLoans = HistoriPeminjaman::leftJoin('barang', function ($join) {
             $join->on('histori_peminjaman.kode_barang', '=', 'barang.kode_barang')
@@ -43,6 +60,13 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('user.dashboard', compact('activeLoans', 'totalLoans', 'currentActiveLoan', 'recentLoans'));
+        return view('user.dashboard', compact(
+            'activeLoans',
+            'totalLoans',
+            'currentActiveLoan',
+            'recentLoans',
+            'overdueLoans',
+            'nextDueLoan'
+        ));
     }
 }

@@ -81,6 +81,94 @@
 
         </div>
 
+        <!-- Insight & SLA -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Peminjaman Terlambat</p>
+                <div class="mt-2 flex items-center justify-between">
+                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $overdueCount ?? 0 }}</p>
+                    <span
+                        class="text-xs text-slate-500 dark:text-slate-400">Jatuh tempo terlewati</span>
+                </div>
+                @if(!empty($overdueList) && $overdueList->count() > 0)
+                    <div class="mt-3 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                        @foreach($overdueList as $loan)
+                            <div class="flex items-center justify-between">
+                                <span class="font-mono">{{ $loan->kode_barang }}-{{ $loan->nup }}</span>
+                                <span class="text-red-600 dark:text-red-400">
+                                    {{ \Carbon\Carbon::parse($loan->tanggal_jatuh_tempo)->format('d M Y') }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <div
+                class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Rata-rata Durasi Pinjam</p>
+                <div class="mt-2">
+                    <p class="text-2xl font-bold text-slate-900 dark:text-white">
+                        {{ $avgBorrowHours ? round($avgBorrowHours / 24, 1) : 0 }} hari
+                    </p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Berdasarkan pinjaman selesai</p>
+                </div>
+            </div>
+
+            <div
+                class="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Utilisasi Barang</p>
+                <div class="mt-2">
+                    <p class="text-2xl font-bold text-slate-900 dark:text-white">
+                        {{ $totalBarang > 0 ? round(($dipinjam / $totalBarang) * 100, 1) : 0 }}%
+                    </p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Barang sedang dipinjam</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Utilization -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-colors">
+                <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-4">Top Barang Paling Sering Dipinjam</h3>
+                <div class="space-y-3">
+                    @forelse($topItems ?? [] as $item)
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-slate-700 dark:text-slate-300">
+                                <span class="font-mono">{{ $item->kode_barang }}-{{ $item->nup }}</span>
+                                <span class="text-xs text-slate-500 dark:text-slate-400 ml-2">
+                                    {{ $item->brand ?? 'Barang' }} {{ $item->tipe ?? '' }}
+                                </span>
+                            </div>
+                            <span class="text-slate-900 dark:text-white font-semibold">{{ $item->total }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Belum ada data pinjaman.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <div
+                class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-colors">
+                <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-4">Top Peminjam</h3>
+                <div class="space-y-3">
+                    @forelse($topBorrowers ?? [] as $item)
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-slate-700 dark:text-slate-300">
+                                <span class="font-medium">{{ $item->nama_peminjam ?? '-' }}</span>
+                                <span class="text-xs text-slate-500 dark:text-slate-400 ml-2">{{ $item->nip_peminjam }}</span>
+                            </div>
+                            <span class="text-slate-900 dark:text-white font-semibold">{{ $item->total }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Belum ada data peminjaman.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
         <!-- Quick Actions -->
         <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4 transition-colors">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

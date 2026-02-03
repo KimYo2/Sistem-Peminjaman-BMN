@@ -156,6 +156,7 @@
             document.addEventListener('alpine:init', () => {
                 Alpine.data('returnPage', () => ({
                     mode: 'camera',
+                    scannedCode: null,
                     isDamaged: false,
                     isRawBPS: false,
                     damageType: 'ringan',
@@ -189,6 +190,27 @@
 
                         const qrReaderElement = document.getElementById('qr-reader');
                         if (!qrReaderElement) return;
+
+                        if (!window.isSecureContext) {
+                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
+                                Akses kamera hanya bisa di HTTPS atau localhost.
+                            </div>`;
+                            return;
+                        }
+
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
+                                Browser tidak mendukung akses kamera.
+                            </div>`;
+                            return;
+                        }
+
+                        if (typeof Html5Qrcode === 'undefined') {
+                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
+                                Library scanner tidak termuat.
+                            </div>`;
+                            return;
+                        }
 
                         // Cleanup existing instance if any
                         if (this.html5QrCode) {

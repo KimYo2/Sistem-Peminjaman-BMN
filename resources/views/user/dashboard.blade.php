@@ -7,7 +7,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
             <!-- Scan QR Card -->
-            <a href="{{ route('return.index') }}"
+            <a href="{{ route('user.scan') }}"
                 class="block bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-lg shadow-sm hover:shadow-md transition p-6 text-white group relative overflow-hidden">
                 <div class="absolute right-0 top-0 h-full w-full opacity-10 pointer-events-none">
                     <svg class="w-full h-full transform translate-x-10 scale-150" fill="currentColor" viewBox="0 0 24 24">
@@ -51,14 +51,27 @@
                 </div>
 
                 <div class="flex-1 flex flex-col justify-center">
+                    @if(isset($overdueLoans) && $overdueLoans > 0)
+                        <div
+                            class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-300">
+                            Terdapat {{ $overdueLoans }} peminjaman yang melewati jatuh tempo. Segera lakukan pengembalian.
+                        </div>
+                    @endif
                     @if($currentActiveLoan)
                         <div
                             class="bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 rounded-lg p-4">
                             <h4 class="font-semibold text-slate-900 dark:text-white mb-1">Peminjaman Terbaru</h4>
-                            <p class="text-sm text-slate-600 dark:text-slate-300">BMN: {{ $currentActiveLoan->nomor_bmn }}</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-300">
+                                BMN: {{ $currentActiveLoan->kode_barang }}-{{ $currentActiveLoan->nup }}
+                            </p>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
                                 Pinjam: {{ \Carbon\Carbon::parse($currentActiveLoan->waktu_pinjam)->format('d M Y H:i') }}
                             </p>
+                            @if(!empty($currentActiveLoan->tanggal_jatuh_tempo))
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    Jatuh tempo: {{ \Carbon\Carbon::parse($currentActiveLoan->tanggal_jatuh_tempo)->format('d M Y') }}
+                                </p>
+                            @endif
                             <div class="mt-3">
                                 <a href="{{ route('return.index') }}"
                                     class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Kembalikan Barang
@@ -112,9 +125,17 @@
                                     </div>
                                 </div>
                                 <div>
-                                    @if($loan->status === 'dipinjam')
+                                    @if($loan->status === 'menunggu')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                            Menunggu
+                                        </span>
+                                    @elseif($loan->status === 'dipinjam')
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
                                             Dipinjam
+                                        </span>
+                                    @elseif($loan->status === 'ditolak')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                            Ditolak
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
