@@ -2,262 +2,214 @@
 
 Sistem peminjaman barang inventaris BMN (Barang Milik Negara) berbasis web untuk BPS dengan fitur scan QR Code menggunakan kamera smartphone.
 
-## 📋 Deskripsi
+## Deskripsi
 
-Sistem ini dirancang untuk memudahkan pegawai BPS dalam meminjam barang inventaris kantor dengan cara scan QR Code yang sudah ada pada barang. Admin dapat mengelola barang dan memproses pengembalian.
+Sistem ini memudahkan pegawai BPS dalam meminjam barang inventaris kantor dengan cara scan QR Code pada barang. Admin dapat mengelola barang, memproses pengajuan, pengembalian, dan laporan kerusakan.
 
-## 🚀 Fitur Utama
+## Fitur Utama
 
 ### User (Pegawai)
 - Login dengan NIP dan password
-- Scan QR Code barang menggunakan kamera smartphone
-- Lihat detail barang (nomor BMN, brand, tipe, kondisi, status)
-- Ajukan peminjaman barang yang tersedia
+- Scan QR Code barang menggunakan kamera
+- Lihat detail barang (kode BMN, brand, tipe, kondisi, status)
+- Ajukan peminjaman barang (status menunggu persetujuan admin)
 - Lihat histori peminjaman pribadi
 
 ### Admin
 - Login dengan akun admin
-- Dashboard dengan statistik barang
-- Lihat daftar semua barang dengan filter
-- Scan QR untuk proses pengembalian barang
-- Lihat histori peminjaman semua pegawai
+- Dashboard statistik barang dan peminjaman
+- Kelola barang (CRUD) dan import CSV
+- Setujui / tolak pengajuan peminjaman
+- Scan QR untuk proses pengembalian
+- Kelola tiket kerusakan
+- Export histori peminjaman ke CSV
 
-## 🛠️ Teknologi
+## Teknologi
 
-- **Backend**: Laravel (PHP)
-- **Database**: MySQL
-- **Frontend**: HTML5, Tailwind CSS (via CDN), JavaScript
-- **QR Scanner**: html5-qrcode library
+- Backend: Laravel (PHP)
+- Database: MySQL
+- Frontend: Blade + Tailwind CSS (CDN)
+- JS: Alpine.js
+- QR Scanner: html5-qrcode
 
-## 📁 Struktur Folder
+## Struktur Folder
 
 ```text
 pinjam_qr/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/           # Controller Admin (Barang, Histori, Tiket)
-│   │   │   ├── Auth/            # Controller Login/Logout
-│   │   │   ├── User/            # Controller User (Dashboard, Scan, Peminjaman)
-│   │   │   └── Concerns/        # Trait helper (Audit Log)
-│   │   └── Middleware/          # Middleware (Auth, EnsureAdmin)
-│   └── Models/                  # Model Eloquent (User, Barang, Histori, AuditLog)
-├── resources/
-│   └── views/
-│       ├── admin/               # View Admin (Blade)
-│       ├── auth/                # View Login
-│       ├── layouts/             # Master Layout (Tailwind)
-│       ├── return/              # View Scan Pengembalian
-│       └── user/                # View User
-├── routes/
-│   └── web.php                  # Definisi Route Aplikasi
-├── public/                      # Entry point & Assets
-│   ├── css/                      # CSS tambahan (fallback theme)
-│   ├── js/                       # JS tambahan (theme toggle)
-│   └── index.php
-├── database/
-│   └── migrations/              # Definisi Schema Database
-└── README.md
+|-- app/
+|   |-- Http/
+|   |   |-- Controllers/
+|   |   |   |-- Admin/           # Controller Admin (Barang, Histori, Tiket)
+|   |   |   |-- Auth/            # Controller Login/Logout
+|   |   |   |-- User/            # Controller User (Dashboard, Scan, Peminjaman)
+|   |   |   `-- Concerns/        # Trait helper (Audit Log)
+|   |   |-- Middleware/          # Middleware (Auth, EnsureAdmin)
+|   |   `-- Requests/
+|   |       |-- Admin/           # Form Request admin
+|   |       `-- User/            # Form Request user
+|   |-- Models/                  # Model Eloquent
+|   `-- Services/                # Service layer (Parser, Import)
+|-- resources/
+|   `-- views/
+|       |-- admin/               # View Admin (Blade)
+|       |-- auth/                # View Login
+|       |-- layouts/             # Master Layout (Tailwind)
+|       |-- return/              # View Scan Pengembalian
+|       `-- user/                # View User
+|-- routes/
+|   `-- web.php                  # Definisi Route Aplikasi
+|-- public/                      # Entry point & Assets
+|   |-- css/                     # CSS tambahan (fallback theme)
+|   |-- js/                      # JS tambahan (theme, qr-scan, dll)
+|   `-- index.php
+|-- database/
+|   `-- migrations/              # Definisi Schema Database
+`-- README.md
 ```
 
-
-## 💾 Instalasi
+## Instalasi
 
 ### 1. Setup Database
 
-#### Konfigurasi .env
-
-Edit file `.env` dan sesuaikan konfigurasi database:
+Sesuaikan konfigurasi database pada `.env`:
 
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=pinjam_bmn
+DB_DATABASE=pinjam_qr
 DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-#### Buat Database
+Buat database:
 
 ```bash
-# Buat database di MySQL
 mysql -u root -p
-
-# Di MySQL prompt:
-CREATE DATABASE pinjam_bmn CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE pinjam_qr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 exit;
 ```
 
 ### 2. Jalankan Migration dan Seeder
 
 ```bash
-# Jalankan migration untuk membuat tabel
 php artisan migrate
-
-# Jalankan seeder untuk mengisi data
 php artisan db:seed
-
-# Atau jalankan sekaligus (fresh migration + seed)
-php artisan migrate:fresh --seed
 ```
-
-Ini akan membuat:
-- 3 tabel (users, barang, histori_peminjaman)
-- 4 user (1 admin + 3 pegawai)
-- 79 barang inventaris BPS
 
 ### 3. Akses Aplikasi
 
-Buka browser dan akses: 
+Buka browser dan akses:
+
+```
 http://pinjam_qr.test
 ```
 
-
-## 👤 Demo Credentials
+## Demo Credentials
 
 ### Admin
-- **NIP**: 198001012006041001
-- **Password**: password123
+- NIP: 198001012006041001
+- Password: password123
 
 ### User (Pegawai)
-- **NIP**: 199001012015041001
-- **Password**: password123
+- NIP: 199001012015041001
+- Password: password123
 
-## 📊 Alur Sistem
+## Alur Sistem
 
 ### Alur Peminjaman (User)
+1. User login
+2. Scan QR Code
+3. Sistem menampilkan detail barang
+4. Ajukan peminjaman
+5. Status pengajuan: menunggu
+6. Admin menyetujui atau menolak
 
-1. User login dengan NIP dan password
-2. Klik menu "Scan QR Code"
-3. Izinkan akses kamera
-4. Arahkan kamera ke QR Code barang
-5. Sistem menampilkan detail barang
-6. Jika tersedia, klik "Ajukan Peminjaman"
-7. Status barang berubah menjadi "Dipinjam"
-8. Data tersimpan di tabel `barang` dan `histori_peminjaman`
+### Alur Pengembalian (Admin/User)
+1. Scan QR Code barang
+2. Konfirmasi kondisi barang
+3. Jika rusak, sistem membuat tiket kerusakan
+4. Status barang kembali tersedia
 
-### Alur Pengembalian (Admin)
+## Database Schema (Ringkas)
 
-1. Admin login
-2. Klik menu "Scan Pengembalian"
-3. Scan QR Code barang yang dikembalikan
-4. Sistem otomatis memproses pengembalian
-5. Status barang kembali "Tersedia"
-6. Waktu kembali tercatat di database
+### Tabel users
+- id
+- nip (unique)
+- nama
+- password (hashed)
+- role (user/admin)
 
-## 🗄️ Database Schema
+### Tabel barang
+- id
+- kode_barang
+- nup
+- brand
+- tipe
+- kondisi_terakhir (baik/rusak_ringan/rusak_berat)
+- ketersediaan (tersedia/dipinjam/hilang/reparasi)
+- pic_user_id
+- peminjam_terakhir
+- waktu_pinjam
+- waktu_kembali
 
-Database menggunakan **Laravel Migrations** yang terletak di `database/migrations/`:
+### Tabel histori_peminjaman
+- id
+- kode_barang
+- nup
+- nip_peminjam
+- nama_peminjam
+- waktu_pengajuan
+- waktu_pinjam
+- waktu_kembali
+- tanggal_jatuh_tempo
+- status (menunggu/dipinjam/ditolak/dikembalikan)
+- kondisi_awal
+- kondisi_kembali
+- catatan_kondisi
+- approved_by
+- approved_at
+- rejected_at
+- rejection_reason
 
-### Migration Files
+### Tabel tiket_kerusakan
+- id
+- nomor_bmn
+- pelapor
+- jenis_kerusakan (ringan/berat)
+- deskripsi
+- tanggal_lapor
+- status (open/diproses/selesai)
 
-1. **2024_01_01_000001_create_users_table.php** - Tabel users
-2. **2024_01_01_000002_create_barang_table.php** - Tabel barang
-3. **2024_01_01_000003_create_histori_peminjaman_table.php** - Tabel histori
+### Tabel audit_logs
+- id
+- user_id
+- action
+- entity
+- entity_id
+- meta
+- created_at
 
-### Tabel `users`
-- `id` - Primary key
-- `nip` - NIP pegawai (unique)
-- `nama` - Nama pegawai
-- `password` - Password (hashed)
-- `role` - user / admin
-
-### Tabel `barang`
-- `id` - Primary key
-- `nomor_bmn` - Nomor BMN (unique)
-- `brand` - Merek barang
-- `tipe` - Tipe/model barang
-- `kondisi_terakhir` - baik / rusak ringan / rusak berat
-- `ketersediaan` - tersedia / dipinjam
-- `peminjam_terakhir` - Nama peminjam
-- `waktu_pinjam` - Timestamp peminjaman
-- `waktu_kembali` - Timestamp pengembalian
-
-### Tabel `histori_peminjaman`
-- `id` - Primary key
-- `nomor_bmn` - Foreign key ke barang
-- `nip_peminjam` - Foreign key ke users
-- `nama_peminjam` - Nama peminjam
-- `waktu_pinjam` - Timestamp peminjaman
-- `waktu_kembali` - Timestamp pengembalian
-- `status` - dipinjam / dikembalikan
-
-## 🔍 Contoh Query
-
-### Cek barang tersedia
-```sql
-SELECT * FROM barang WHERE ketersediaan = 'tersedia';
-```
-
-### Lihat peminjaman aktif
-```sql
-SELECT * FROM histori_peminjaman WHERE status = 'dipinjam';
-```
-
-### Histori peminjaman user tertentu
-```sql
-SELECT * FROM histori_peminjaman 
-WHERE nip_peminjam = '199001012015041001'
-ORDER BY waktu_pinjam DESC;
-```
-
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Kamera tidak bisa diakses
-- Pastikan browser memiliki izin akses kamera
-- Gunakan HTTPS atau localhost (HTTP5 camera API requirement)
-- Coba browser lain (Chrome/Firefox recommended)
+- Gunakan HTTPS atau localhost
+- Pastikan browser diizinkan mengakses kamera
 
 ### Database connection error
-- Periksa konfigurasi di file `.env`
-- Pastikan MySQL service berjalan
-- Pastikan database `pinjam_bmn` sudah dibuat
+- Pastikan konfigurasi `.env` sesuai
+- Pastikan MySQL berjalan
 
 ### QR Code tidak terbaca
 - Pastikan QR Code jelas dan tidak blur
-- Coba adjust jarak kamera ke QR Code
-- Pastikan pencahayaan cukup
+- Coba jarak kamera yang berbeda
 
-## 📱 Penggunaan di Smartphone
+## Catatan Penting
 
-1. Pastikan smartphone terhubung ke jaringan yang sama dengan server
-2. Akses menggunakan IP server, contoh: `http://192.168.1.100:8000`
-3. Untuk production, gunakan HTTPS agar kamera bisa diakses
-
-## 🔐 Keamanan
-
-- Password di-hash menggunakan `password_hash()` PHP
-- Prepared statements untuk mencegah SQL injection
-- Session-based authentication
-- Role-based access control (user/admin)
-
-## 📝 Catatan Penting
-
-- QR Code pada barang harus berisi **nomor BMN** yang sesuai dengan database
-- Sistem ini TIDAK generate QR Code baru, hanya membaca QR yang sudah ada
+- Nomor BMN dibentuk dari `kode_barang-nup`
+- Sistem tidak membuat QR Code baru, hanya membaca QR yang sudah ada
 - Untuk production, ganti password default semua user
-- Backup database secara berkala
 
-## 👨‍💻 Untuk Mahasiswa Magang
-
-Sistem ini dirancang sederhana dan mudah dipahami:
-- Menggunakan PHP native (bukan framework)
-- Struktur folder yang jelas
-- Kode terdokumentasi dengan baik
-- Menggunakan Tailwind CSS untuk styling yang mudah
-
-Anda bisa mengembangkan lebih lanjut dengan menambahkan fitur:
-- Export laporan ke Excel/PDF
-- Notifikasi email/WhatsApp
-- Reminder otomatis untuk pengembalian
-- Upload foto kondisi barang
-- Dan lain-lain
-
-## 📄 Lisensi
+## Lisensi
 
 Sistem ini dibuat untuk keperluan internal BPS.
-
----
-
-**Dibuat dengan ❤️ untuk BPS**
