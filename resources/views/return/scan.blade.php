@@ -84,7 +84,6 @@
                 </div>
             </div>
         </div>
-        </div>
 
         <!-- Confirmation & Damage Form -->
         <div x-show="scannedCode && !resultHtml" x-cloak class="space-y-6">
@@ -151,7 +150,6 @@
     </main>
 
     @push('scripts')
-        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('returnPage', () => ({
@@ -191,54 +189,19 @@
                         const qrReaderElement = document.getElementById('qr-reader');
                         if (!qrReaderElement) return;
 
-                        if (!window.isSecureContext) {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Akses kamera hanya bisa di HTTPS atau localhost.
-                            </div>`;
+                        const cameraError = window.QrScan.getCameraError();
+                        if (cameraError) {
+                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">${cameraError}</div>`;
                             return;
                         }
 
-                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Browser tidak mendukung akses kamera.
-                            </div>`;
-                            return;
-                        }
-
-                        if (typeof Html5Qrcode === 'undefined') {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Library scanner tidak termuat.
-                            </div>`;
-                            return;
-                        }
-
-                        // Cleanup existing instance if any
-                        if (this.html5QrCode) {
-                            try {
-                                await this.html5QrCode.stop();
-                                this.html5QrCode.clear();
-                            } catch (e) {
-                                console.log('Cleanup error', e);
-                            }
-                        }
-
-                        this.html5QrCode = new Html5Qrcode("qr-reader");
-                        const config = {
-                            fps: 10,
-                            qrbox: {
-                                width: 250,
-                                height: 250
-                            }
-                        };
+                        await this.stopScanner();
 
                         try {
-                            await this.html5QrCode.start({
-                                facingMode: "environment"
-                            },
-                                config,
-                                (decodedText) => this.handleScan(decodedText),
-                                (errorMessage) => { /* ignore */ }
-                            );
+                            this.html5QrCode = await window.QrScan.startCamera({
+                                elementId: 'qr-reader',
+                                onDecoded: (decodedText) => this.handleScan(decodedText),
+                            });
                         } catch (err) {
                             console.error("Error starting scanner", err);
                             this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">Gagal akses kamera: ${err.message || 'Unknown error'}</div>`;
@@ -246,16 +209,8 @@
                     },
 
                     async stopScanner() {
-                        if (this.html5QrCode) {
-                            try {
-                                if (this.html5QrCode.isScanning) {
-                                    await this.html5QrCode.stop();
-                                }
-                                this.html5QrCode.clear();
-                            } catch (e) {
-                                // ignore stop errors
-                            }
-                        }
+                        await window.QrScan.stopCamera(this.html5QrCode);
+                        this.html5QrCode = null;
                     },
 
                     async switchScannerMode(newMode) {
@@ -269,21 +224,8 @@
                         console.log('Raw Scan:', decodedText);
                         await this.stopScanner();
 
-                        // Parse BPS QR Code if detected (Format: INV-...*...*CODE*NUP)
-                        if (decodedText.includes('*')) {
-                            const parts = decodedText.split('*');
-                            // Usually parts[2] is Code, parts[3] is NUP
-                            if (parts.length >= 4) {
-                                this.scannedCode = parts[2].trim() + '-' + parts[3].trim();
-                                this.isRawBPS = true;
-                            } else {
-                                this.scannedCode = decodedText;
-                                this.isRawBPS = false;
-                            }
-                        } else {
-                            this.scannedCode = decodedText;
-                            this.isRawBPS = false;
-                        }
+                        this.scannedCode = window.QrScan.parseBmn(decodedText);
+                        this.isRawBPS = String(decodedText || '').includes('*');
 
                         // Clear resultHtml (to show form)
                         this.resultHtml = '';
@@ -377,12 +319,9 @@
                         this.startScanner();
                     },
 
-                    handleFileUpload(event) {
+                    async handleFileUpload(event) {
                         const file = event.target.files[0];
                         if (!file) return;
-
-                        // Create a temporary instance for file scanning
-                        const scanner = new Html5Qrcode("qr-reader");
 
                         // Show loading state
                         this.resultHtml = `
@@ -392,21 +331,18 @@
                                                                     </div>
                                                                 `;
 
-                        scanner.scanFile(file, true)
-                            .then(decodedText => {
-                                scanner.clear();
-                                this.handleScan(decodedText);
-                            })
-                            .catch(err => {
-                                console.error('File scan error:', err);
-                                scanner.clear();
-                                this.resultHtml = `
+                        try {
+                            const decodedText = await window.QrScan.scanFile(file, 'qr-reader');
+                            this.handleScan(decodedText);
+                        } catch (err) {
+                            console.error('File scan error:', err);
+                            this.resultHtml = `
                                                                             <div class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4 text-center">
                                                                                 <p class="font-bold">Gagal membaca QR Code.</p>
                                                                                 <p class="text-sm">Pastikan gambar jelas dan memuat QR Code yang valid.</p>
                                                                             </div>
                                                                         `;
-                            });
+                        }
                     }
                 }))
             })

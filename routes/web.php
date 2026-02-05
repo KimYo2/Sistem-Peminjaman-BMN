@@ -40,8 +40,9 @@ Route::middleware(['web', Authenticate::class])->group(function () {
 
         // Admin Barang Management (New Migration)
         Route::resource('/admin/barang', App\Http\Controllers\Admin\BarangController::class, [
-            'names' => 'admin.barang'
-        ]); // All resource routes enabled (index, create, store, show, edit, update, destroy)
+            'names' => 'admin.barang',
+            'except' => ['show'],
+        ]);
         Route::post('/admin/barang/import', [App\Http\Controllers\Admin\BarangController::class, 'import'])->name('admin.barang.import');
 
         // Admin Histori Management (New Migration)

@@ -97,12 +97,10 @@
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                                                                    {{ $item->kondisi_terakhir === 'baik' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' :
-                            ($item->kondisi_terakhir === 'rusak_ringan' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300') }}">
+                                                                                                                    {{ $item->kondisi_badge_class }}">
                                                     <span class="w-1.5 h-1.5 rounded-full 
-                                                                                                                        {{ $item->kondisi_terakhir === 'baik' ? 'bg-green-500' :
-                            ($item->kondisi_terakhir === 'rusak_ringan' ? 'bg-yellow-500' : 'bg-red-500') }}"></span>
-                                                    {{ ucwords(str_replace('_', ' ', $item->kondisi_terakhir)) }}
+                                                                                                                        {{ $item->kondisi_dot_class }}"></span>
+                                                    {{ $item->kondisi_label }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">

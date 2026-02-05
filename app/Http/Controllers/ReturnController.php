@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\ReturnStoreRequest;
+use App\Services\BmnParser;
 
 class ReturnController extends Controller
 {
@@ -11,39 +12,19 @@ class ReturnController extends Controller
         return view('return.scan');
     }
 
-    public function store(Request $request)
+    public function store(ReturnStoreRequest $request)
     {
         try {
-            $request->validate([
-                'nomor_bmn' => 'required',
-                'is_damaged' => 'nullable|boolean',
-                'jenis_kerusakan' => 'required_if:is_damaged,true|in:ringan,berat',
-                'deskripsi' => 'nullable|string|max:1000',
-            ]);
-
-            $nomor_bmn = $request->nomor_bmn;
-            $kode_barang = '';
-            $nup = '';
-
-            if (!empty($nomor_bmn)) {
-                // 1. Try BPS Long Format with Asterisks (Pre-parsing for raw scans)
-                if (strpos($nomor_bmn, '*') !== false) {
-                    $parts = explode('*', $nomor_bmn);
-                    // Format: INV-xxx*xxx*xxx*KODE*NUP
-                    if (count($parts) >= 4) {
-                        $nomor_bmn = trim($parts[2]) . '-' . trim($parts[3]);
-                    }
-                }
-
-                // 2. Logic requested by user (Code-NUP)
-                if (strpos($nomor_bmn, '-') !== false) {
-                    $parts = explode('-', $nomor_bmn);
-                    $kode_barang = $parts[0];
-                    $nup = intval($parts[1]);
-                } else {
-                    $kode_barang = $nomor_bmn;
-                }
+            $data = $request->validated();
+            $nomor_bmn = $data['nomor_bmn'];
+            try {
+                $parsed = BmnParser::parse($nomor_bmn, false);
+            } catch (\InvalidArgumentException $e) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
             }
+
+            $kode_barang = $parsed['kode_barang'];
+            $nup = $parsed['nup'];
 
             // Logic tambahan untuk parsing BPS QR Code (INV-...) jika tidak kena filter diatas
             // User snippet expects "-" split. 
@@ -64,8 +45,11 @@ class ReturnController extends Controller
             $query = \App\Models\HistoriPeminjaman::where('kode_barang', $kode_barang)
                 ->where('status', 'dipinjam');
 
-            if (!empty($nup)) {
+            if (!is_null($nup)) {
                 $query->where('nup', $nup);
+            }
+            if ($user && ($user->role ?? 'user') !== 'admin') {
+                $query->where('nip_peminjam', $user->nip);
             }
 
             $peminjaman = $query->orderBy('waktu_pinjam', 'desc')->first();
@@ -83,26 +67,27 @@ class ReturnController extends Controller
             // Use found NUP from peminjaman if strict NUP was not possible (e.g. only code scanned)
             $target_nup = $peminjaman->nup;
 
-            \Illuminate\Support\Facades\DB::transaction(function () use ($peminjaman, $kode_barang, $target_nup, $waktu_kembali, $nomor_bmn, $request, $user) {
-                $isDamagedValue = $request->is_damaged;
-                $shouldCreateTicket = ($isDamagedValue === true || $isDamagedValue === 'true' || $isDamagedValue === 1 || $isDamagedValue === '1');
+            \Illuminate\Support\Facades\DB::transaction(function () use ($peminjaman, $kode_barang, $target_nup, $waktu_kembali, $nomor_bmn, $request, $user, $data) {
+                $isDamagedValue = $request->boolean('is_damaged');
+                $shouldCreateTicket = $isDamagedValue;
 
                 $kondisiKembali = 'baik';
                 if ($shouldCreateTicket) {
-                    $kondisiKembali = ($request->jenis_kerusakan === 'berat') ? 'rusak_berat' : 'rusak_ringan';
+                    $kondisiKembali = (($data['jenis_kerusakan'] ?? 'ringan') === 'berat') ? 'rusak_berat' : 'rusak_ringan';
                 }
 
                 $peminjaman->update([
                     'status' => 'dikembalikan',
                     'waktu_kembali' => $waktu_kembali,
                     'kondisi_kembali' => $kondisiKembali,
-                    'catatan_kondisi' => $request->deskripsi,
+                    'catatan_kondisi' => $data['deskripsi'] ?? null,
                 ]);
 
                 \App\Models\Barang::where('kode_barang', $kode_barang)
                     ->where('nup', $target_nup)
                     ->update([
                         'ketersediaan' => 'tersedia',
+                        'kondisi_terakhir' => $kondisiKembali,
                         'waktu_kembali' => $waktu_kembali
                     ]);
 
@@ -111,16 +96,16 @@ class ReturnController extends Controller
                     'is_damaged_raw' => $isDamagedValue,
                     'is_damaged_type' => gettype($isDamagedValue),
                     'should_create' => $shouldCreateTicket,
-                    'jenis_kerusakan' => $request->jenis_kerusakan,
-                    'deskripsi' => $request->deskripsi
+                    'jenis_kerusakan' => $data['jenis_kerusakan'] ?? null,
+                    'deskripsi' => $data['deskripsi'] ?? null
                 ]);
 
                 if ($shouldCreateTicket) {
                     $ticket = \App\Models\TiketKerusakan::create([
                         'nomor_bmn' => $kode_barang . '-' . $target_nup,
-                        'pelapor' => $user->name ?? 'System',
-                        'jenis_kerusakan' => $request->jenis_kerusakan ?? 'ringan',
-                        'deskripsi' => $request->deskripsi ?? '-',
+                        'pelapor' => $user->nama ?? $user->name ?? 'System',
+                        'jenis_kerusakan' => $data['jenis_kerusakan'] ?? 'ringan',
+                        'deskripsi' => $data['deskripsi'] ?? '-',
                         'status' => 'open'
                     ]);
 

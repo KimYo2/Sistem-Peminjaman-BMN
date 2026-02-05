@@ -121,6 +121,7 @@
     </main>
 
     <script src="{{ asset('js/script.js') }}"></script>
+    <script src="{{ asset('js/qr-scan.js') }}"></script>
     @stack('scripts')
 </body>
 

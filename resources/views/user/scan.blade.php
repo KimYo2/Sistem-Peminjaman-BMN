@@ -111,49 +111,19 @@
                         const qrReaderElement = document.getElementById('qr-reader');
                         if (!qrReaderElement) return;
 
-                        if (!window.isSecureContext) {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Akses kamera hanya bisa di HTTPS atau localhost.
-                            </div>`;
+                        const cameraError = window.QrScan.getCameraError();
+                        if (cameraError) {
+                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">${cameraError}</div>`;
                             return;
                         }
 
-                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Browser tidak mendukung akses kamera.
-                            </div>`;
-                            return;
-                        }
-
-                        if (typeof Html5Qrcode === 'undefined') {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Library scanner tidak termuat.
-                            </div>`;
-                            return;
-                        }
-
-                        if (this.html5QrCode) {
-                            try {
-                                await this.html5QrCode.stop();
-                                this.html5QrCode.clear();
-                            } catch (e) {
-                                // ignore cleanup error
-                            }
-                        }
-
-                        this.html5QrCode = new Html5Qrcode("qr-reader");
-                        const config = {
-                            fps: 10,
-                            qrbox: { width: 250, height: 250 }
-                        };
+                        await this.stopScanner();
 
                         try {
-                            await this.html5QrCode.start(
-                                { facingMode: "environment" },
-                                config,
-                                (decodedText) => this.handleScan(decodedText),
-                                () => { /* ignore scan errors */ }
-                            );
+                            this.html5QrCode = await window.QrScan.startCamera({
+                                elementId: 'qr-reader',
+                                onDecoded: (decodedText) => this.handleScan(decodedText),
+                            });
                         } catch (err) {
                             this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
                                 Gagal akses kamera: ${err.message || 'Unknown error'}
@@ -162,16 +132,8 @@
                     },
 
                     async stopScanner() {
-                        if (this.html5QrCode) {
-                            try {
-                                if (this.html5QrCode.isScanning) {
-                                    await this.html5QrCode.stop();
-                                }
-                                this.html5QrCode.clear();
-                            } catch (e) {
-                                // ignore stop errors
-                            }
-                        }
+                        await window.QrScan.stopCamera(this.html5QrCode);
+                        this.html5QrCode = null;
                     },
 
                     async switchScannerMode(newMode) {
@@ -183,34 +145,15 @@
                     },
 
                     handleScan(decodedText) {
-                        const parsed = this.parseBmn(decodedText);
+                        const parsed = window.QrScan.parseBmn(decodedText);
                         const targetUrl = `{{ url('/barang') }}/${encodeURIComponent(parsed)}`;
                         window.location.href = targetUrl;
                     },
 
-                    parseBmn(decodedText) {
-                        if (!decodedText) return '';
-                        if (decodedText.includes('*')) {
-                            const parts = decodedText.split('*');
-                            if (parts.length >= 4) {
-                                return `${parts[2].trim()}-${parts[3].trim()}`;
-                            }
-                        }
-                        return decodedText.trim();
-                    },
-
-                    handleFileUpload(event) {
+                    async handleFileUpload(event) {
                         const file = event.target.files[0];
                         if (!file) return;
 
-                        if (typeof Html5Qrcode === 'undefined') {
-                            this.resultHtml = `<div class="bg-red-50 text-red-700 p-4 rounded">
-                                Library scanner tidak termuat.
-                            </div>`;
-                            return;
-                        }
-
-                        const scanner = new Html5Qrcode("qr-reader");
                         this.resultHtml = `
                             <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 text-center border border-slate-200 dark:border-slate-700">
                                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -218,21 +161,18 @@
                             </div>
                         `;
 
-                        scanner.scanFile(file, true)
-                            .then(decodedText => {
-                                scanner.clear();
-                                this.handleScan(decodedText);
-                            })
-                            .catch(err => {
-                                console.error('File scan error:', err);
-                                scanner.clear();
-                                this.resultHtml = `
-                                    <div class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4 text-center">
-                                        <p class="font-bold">Gagal membaca QR Code.</p>
-                                        <p class="text-sm">Pastikan gambar jelas dan memuat QR Code yang valid.</p>
-                                    </div>
-                                `;
-                            });
+                        try {
+                            const decodedText = await window.QrScan.scanFile(file, 'qr-reader');
+                            this.handleScan(decodedText);
+                        } catch (err) {
+                            console.error('File scan error:', err);
+                            this.resultHtml = `
+                                <div class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4 text-center">
+                                    <p class="font-bold">Gagal membaca QR Code.</p>
+                                    <p class="text-sm">Pastikan gambar jelas dan memuat QR Code yang valid.</p>
+                                </div>
+                            `;
+                        }
                     }
                 }));
             });

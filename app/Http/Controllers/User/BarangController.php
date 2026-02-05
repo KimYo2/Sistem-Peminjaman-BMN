@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\BorrowBarangRequest;
+use App\Services\BmnParser;
 use App\Models\Barang;
 use App\Models\HistoriPeminjaman;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -14,14 +15,14 @@ class BarangController extends Controller
 {
     public function show($nomor_bmn)
     {
-        // Parse kode_barang and nup like legacy logic
-        $parts = explode('-', $nomor_bmn);
-        $kode_barang = $parts[0] ?? null;
-        $nup = isset($parts[1]) ? intval($parts[1]) : null;
-
-        if (!$kode_barang || $nup === null) {
+        try {
+            $parsed = BmnParser::parse($nomor_bmn, true);
+        } catch (\InvalidArgumentException $e) {
             abort(404, 'Format Nomor BMN tidak valid');
         }
+
+        $kode_barang = $parsed['kode_barang'];
+        $nup = $parsed['nup'];
 
         $barang = Barang::where('kode_barang', $kode_barang)
             ->where('nup', $nup)
@@ -41,19 +42,17 @@ class BarangController extends Controller
         return view('user.barang.show', compact('barang', 'isBorrowing'));
     }
 
-    public function store(Request $request)
+    public function store(BorrowBarangRequest $request)
     {
-        $request->validate([
-            'nomor_bmn' => 'required|string',
-        ]);
-
-        $parts = explode('-', $request->nomor_bmn);
-        $kode_barang = $parts[0] ?? null;
-        $nup = isset($parts[1]) ? intval($parts[1]) : null;
-
-        if (!$kode_barang || $nup === null) {
+        try {
+            $data = $request->validated();
+            $parsed = BmnParser::parse($data['nomor_bmn'], true);
+        } catch (\InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => 'Format Nomor BMN tidak valid'], 400);
         }
+
+        $kode_barang = $parsed['kode_barang'];
+        $nup = $parsed['nup'];
 
         $barang = Barang::where('kode_barang', $kode_barang)
             ->where('nup', $nup)

@@ -15,10 +15,16 @@ class HistoriController extends Controller
         $nip = Auth::user()->nip;
 
         // Fetch history for this user, ordered by latest
-        $histori = HistoriPeminjaman::with('barang')
-            ->where('nip_peminjam', $nip)
-            ->orderBy('waktu_pinjam', 'desc')
-            ->paginate(10);
+        $histori = HistoriPeminjaman::query()
+            ->leftJoin('barang', function ($join) {
+                $join->on('histori_peminjaman.kode_barang', '=', 'barang.kode_barang')
+                    ->on('histori_peminjaman.nup', '=', 'barang.nup');
+            })
+            ->where('histori_peminjaman.nip_peminjam', $nip)
+            ->orderBy('histori_peminjaman.waktu_pinjam', 'desc')
+            ->select('histori_peminjaman.*', 'barang.brand', 'barang.tipe')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('user.histori.index', compact('histori'));
     }

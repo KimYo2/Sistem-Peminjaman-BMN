@@ -125,23 +125,19 @@
                                     </div>
                                 </div>
                                 <div>
-                                    @if($loan->status === 'menunggu')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                            Menunggu
-                                        </span>
-                                    @elseif($loan->status === 'dipinjam')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                            Dipinjam
-                                        </span>
-                                    @elseif($loan->status === 'ditolak')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                            Ditolak
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                            Selesai
-                                        </span>
-                                    @endif
+                                    @php
+                                        $shortStatus = [
+                                            'menunggu' => 'Menunggu',
+                                            'dipinjam' => 'Dipinjam',
+                                            'ditolak' => 'Ditolak',
+                                            'dikembalikan' => 'Selesai',
+                                        ];
+                                        $statusKey = strtolower((string) $loan->status);
+                                    @endphp
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $loan->status_badge_class }}">
+                                        {{ $shortStatus[$statusKey] ?? $loan->status_label }}
+                                    </span>
                                 </div>
                             </div>
                         @endforeach

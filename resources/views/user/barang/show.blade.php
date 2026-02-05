@@ -30,9 +30,8 @@
                         <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Kondisi</p>
                         <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                {{ $barang->kondisi_terakhir === 'baik' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-        ($barang->kondisi_terakhir === 'rusak_ringan' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300') }}">
-                            {{ ucfirst($barang->kondisi_terakhir) }}
+                                {{ $barang->kondisi_badge_class }}">
+                            {{ $barang->kondisi_label }}
                         </span>
                     </div>
                 </div>
@@ -43,7 +42,7 @@
                         <span
                             class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium 
                                 {{ $barang->ketersediaan === 'tersedia' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' }}">
-                            {{ $barang->ketersediaan === 'tersedia' ? '✓ Tersedia' : '✗ Sedang Dipinjam' }}
+                            {{ $barang->ketersediaan === 'tersedia' ? 'Tersedia' : 'Sedang Dipinjam' }}
                         </span>
                     </div>
                 </div>
