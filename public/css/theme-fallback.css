@@ -1,109 +1,109 @@
 /* Fallback dark-mode overrides when Tailwind dark variants are unavailable */
-html.dark body {
+html.theme-fallback.dark body {
     background-color: #0f172a !important;
     color: #f1f5f9 !important;
 }
 
-html.dark header {
+html.theme-fallback.dark header {
     background-color: #1e293b !important;
 }
 
-html.dark .bg-white {
+html.theme-fallback.dark .bg-white {
     background-color: #1e293b !important;
 }
 
-html.dark .bg-slate-50 {
+html.theme-fallback.dark .bg-slate-50 {
     background-color: #0f172a !important;
 }
 
-html.dark .bg-slate-100 {
+html.theme-fallback.dark .bg-slate-100 {
     background-color: #1e293b !important;
 }
 
-html.dark .text-slate-900,
-html.dark .text-slate-800 {
+html.theme-fallback.dark .text-slate-900,
+html.theme-fallback.dark .text-slate-800 {
     color: #f1f5f9 !important;
 }
 
-html.dark .text-slate-700 {
+html.theme-fallback.dark .text-slate-700 {
     color: #e2e8f0 !important;
 }
 
-html.dark .text-slate-600 {
+html.theme-fallback.dark .text-slate-600 {
     color: #cbd5e1 !important;
 }
 
-html.dark .text-slate-500 {
+html.theme-fallback.dark .text-slate-500 {
     color: #94a3b8 !important;
 }
 
-html.dark .border-slate-200 {
+html.theme-fallback.dark .border-slate-200 {
     border-color: #334155 !important;
 }
 
-html.dark .border-slate-300 {
+html.theme-fallback.dark .border-slate-300 {
     border-color: #475569 !important;
 }
 
-html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+html.theme-fallback.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
     border-color: #334155 !important;
 }
 
-html.dark .hover\:bg-slate-50:hover {
+html.theme-fallback.dark .hover\:bg-slate-50:hover {
     background-color: #1e293b !important;
 }
 
 /* Light mode fallback: keep a clean white/gray palette */
-html:not(.dark) body {
+html.theme-fallback:not(.dark) body {
     background-color: #f8fafc !important;
     color: #0f172a !important;
 }
 
-html:not(.dark) header {
+html.theme-fallback:not(.dark) header {
     background-color: #ffffff !important;
 }
 
-html:not(.dark) .bg-white {
+html.theme-fallback:not(.dark) .bg-white {
     background-color: #ffffff !important;
 }
 
-html:not(.dark) .bg-slate-50 {
+html.theme-fallback:not(.dark) .bg-slate-50 {
     background-color: #f8fafc !important;
 }
 
-html:not(.dark) .bg-slate-100 {
+html.theme-fallback:not(.dark) .bg-slate-100 {
     background-color: #f1f5f9 !important;
 }
 
-html:not(.dark) .text-slate-900,
-html:not(.dark) .text-slate-800 {
+html.theme-fallback:not(.dark) .text-slate-900,
+html.theme-fallback:not(.dark) .text-slate-800 {
     color: #0f172a !important;
 }
 
-html:not(.dark) .text-slate-700 {
+html.theme-fallback:not(.dark) .text-slate-700 {
     color: #334155 !important;
 }
 
-html:not(.dark) .text-slate-600 {
+html.theme-fallback:not(.dark) .text-slate-600 {
     color: #475569 !important;
 }
 
-html:not(.dark) .text-slate-500 {
+html.theme-fallback:not(.dark) .text-slate-500 {
     color: #64748b !important;
 }
 
-html:not(.dark) .border-slate-200 {
+html.theme-fallback:not(.dark) .border-slate-200 {
     border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) .border-slate-300 {
+html.theme-fallback:not(.dark) .border-slate-300 {
     border-color: #cbd5e1 !important;
 }
 
-html:not(.dark) .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+html.theme-fallback:not(.dark) .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
     border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) .hover\:bg-slate-50:hover {
+html.theme-fallback:not(.dark) .hover\:bg-slate-50:hover {
     background-color: #f1f5f9 !important;
 }

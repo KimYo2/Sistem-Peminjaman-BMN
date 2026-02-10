@@ -3,12 +3,10 @@
     if (window.tailwind) {
         window.tailwind.config = window.tailwind.config || {};
         window.tailwind.config.darkMode = 'class';
-        if (typeof window.tailwind.refresh === 'function') {
-            window.tailwind.refresh();
-        }
     }
 
     const storageKey = 'pinjam_qr_theme';
+    const html = document.documentElement;
 
     function getStoredTheme() {
         const value = localStorage.getItem(storageKey);
@@ -22,11 +20,8 @@
     }
 
     function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        html.classList.toggle('dark', theme === 'dark');
+        html.setAttribute('data-theme', theme);
     }
 
     function resolveTheme() {
@@ -44,13 +39,36 @@
             return;
         }
 
-        if (document.documentElement.classList.contains('dark')) {
-            themeToggleLightIcon.classList.add('hidden');
-            themeToggleDarkIcon.classList.remove('hidden');
-        } else {
+        if (html.classList.contains('dark')) {
+            // In dark mode, show sun icon as "switch to light"
             themeToggleLightIcon.classList.remove('hidden');
             themeToggleDarkIcon.classList.add('hidden');
+        } else {
+            // In light mode, show moon icon as "switch to dark"
+            themeToggleLightIcon.classList.add('hidden');
+            themeToggleDarkIcon.classList.remove('hidden');
         }
+    }
+
+    function hasTailwindUtilities() {
+        if (!document.body) {
+            return false;
+        }
+
+        const probe = document.createElement('div');
+        probe.className = 'hidden';
+        probe.style.position = 'absolute';
+        probe.style.pointerEvents = 'none';
+        probe.style.opacity = '0';
+        document.body.appendChild(probe);
+
+        const isAvailable = window.getComputedStyle(probe).display === 'none';
+        probe.remove();
+        return isAvailable;
+    }
+
+    function syncFallbackMode() {
+        html.classList.toggle('theme-fallback', !hasTailwindUtilities());
     }
 
     // Apply immediately to avoid flash
@@ -58,6 +76,8 @@
 
 
     document.addEventListener('DOMContentLoaded', function () {
+        syncFallbackMode();
+
         const themeToggleBtn = document.getElementById('theme-toggle');
         if (!themeToggleBtn) {
             return;
@@ -66,7 +86,7 @@
         syncToggleIcons();
 
         themeToggleBtn.addEventListener('click', function () {
-            const nextTheme = document.documentElement.classList.contains('dark')
+            const nextTheme = html.classList.contains('dark')
                 ? 'light'
                 : 'dark';
 
@@ -75,4 +95,6 @@
             syncToggleIcons();
         });
     });
+
+    window.addEventListener('load', syncFallbackMode);
 })();
