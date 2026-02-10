@@ -241,6 +241,29 @@
                 </div>
             </a>
 
+            <!-- Stock Opname -->
+            <a href="{{ route('admin.opname.index') }}"
+                class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-cyan-300 dark:hover:border-cyan-500 hover:shadow-md transition duration-200 group">
+                <div class="flex items-start">
+                    <div
+                        class="bg-cyan-50 dark:bg-cyan-900/30 rounded-lg p-3 mr-4 group-hover:bg-cyan-100 dark:group-hover:bg-cyan-900/50 transition">
+                        <svg class="w-6 h-6 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.586-3.586a2 2 0 010 2.828l-8.172 8.172a2 2 0 01-2.828 0l-4.172-4.172a2 2 0 010-2.828l8.172-8.172a2 2 0 012.828 0l4.172 4.172z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3
+                            class="font-semibold text-slate-800 dark:text-white group-hover:text-cyan-700 dark:group-hover:text-cyan-400 transition">
+                            Stock Opname</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 transition-colors">Validasi fisik
+                            inventaris</p>
+                    </div>
+                </div>
+            </a>
+
             <!-- Tiket Kerusakan (Already Migrated) -->
             <a href="{{ route('admin.tiket.index') }}"
                 class="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:border-red-300 dark:hover:border-red-500 hover:shadow-md transition duration-200 group">
