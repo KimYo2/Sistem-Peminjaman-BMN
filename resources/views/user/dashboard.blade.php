@@ -77,6 +77,50 @@
                                     class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Kembalikan Barang
                                     &rarr;</a>
                             </div>
+
+                            <div class="mt-4 border-t border-slate-200 dark:border-slate-600 pt-3">
+                                @if($currentActiveLoan->perpanjangan_status === 'menunggu')
+                                    <div
+                                        class="mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-xs text-amber-700 dark:text-amber-300">
+                                        Pengajuan perpanjangan sedang diproses admin.
+                                    </div>
+                                @elseif($currentActiveLoan->perpanjangan_status === 'disetujui')
+                                    <div
+                                        class="mb-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 text-xs text-emerald-700 dark:text-emerald-300">
+                                        Perpanjangan disetujui. Jatuh tempo baru terupdate.
+                                    </div>
+                                @elseif($currentActiveLoan->perpanjangan_status === 'ditolak')
+                                    <div
+                                        class="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-xs text-red-700 dark:text-red-300">
+                                        Perpanjangan ditolak.
+                                        @if(!empty($currentActiveLoan->perpanjangan_reject_reason))
+                                            <span class="block mt-1 text-[11px] opacity-80">
+                                                {{ $currentActiveLoan->perpanjangan_reject_reason }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if($currentActiveLoan->perpanjangan_status !== 'menunggu')
+                                    <form method="POST"
+                                        action="{{ route('user.histori.extend', $currentActiveLoan->id) }}"
+                                        class="flex flex-col sm:flex-row gap-2">
+                                        @csrf
+                                        <div class="flex items-center gap-2">
+                                            <label class="text-xs text-slate-500 dark:text-slate-400">Perpanjang</label>
+                                            <input type="number" name="hari" min="1" max="14" value="7"
+                                                class="w-20 px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md text-slate-700 dark:text-slate-200">
+                                            <span class="text-xs text-slate-500 dark:text-slate-400">hari</span>
+                                        </div>
+                                        <input type="text" name="alasan" placeholder="Alasan perpanjangan (opsional)"
+                                            class="flex-1 px-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md text-slate-700 dark:text-slate-200">
+                                        <button type="submit"
+                                            class="px-3 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">
+                                            Ajukan Perpanjangan
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     @else
                         <div class="text-center text-slate-400 dark:text-slate-500">

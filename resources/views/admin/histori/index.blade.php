@@ -123,6 +123,22 @@
                                             Terlambat
                                         </span>
                                     @endif
+                                    @if($item->perpanjangan_status === 'menunggu')
+                                        <span
+                                            class="ml-2 px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md border bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800">
+                                            Perpanjangan Menunggu
+                                        </span>
+                                    @elseif($item->perpanjangan_status === 'disetujui')
+                                        <span
+                                            class="ml-2 px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md border bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
+                                            Perpanjangan Disetujui
+                                        </span>
+                                    @elseif($item->perpanjangan_status === 'ditolak')
+                                        <span
+                                            class="ml-2 px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md border bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800">
+                                            Perpanjangan Ditolak
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($item->status === 'menunggu')
@@ -140,6 +156,24 @@
                                                 <button type="submit"
                                                     class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition">
                                                     Tolak
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @elseif($item->status === 'dipinjam' && $item->perpanjangan_status === 'menunggu')
+                                        <div class="flex items-center gap-2">
+                                            <form method="POST" action="{{ route('admin.histori.extend.approve', $item->id) }}">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                                                    Setujui Perpanjangan
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.histori.extend.reject', $item->id) }}">
+                                                @csrf
+                                                <input type="hidden" name="perpanjangan_reject_reason" value="Ditolak admin">
+                                                <button type="submit"
+                                                    class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                                                    Tolak Perpanjangan
                                                 </button>
                                             </form>
                                         </div>

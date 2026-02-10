@@ -209,4 +209,67 @@ class HistoriController extends Controller
 
         return redirect()->back()->with('success', 'Peminjaman ditolak.');
     }
+
+    public function approveExtension($id)
+    {
+        $histori = HistoriPeminjaman::findOrFail($id);
+
+        if ($histori->status !== 'dipinjam' || $histori->perpanjangan_status !== 'menunggu') {
+            return redirect()->back()->withErrors(['status' => 'Tidak ada pengajuan perpanjangan yang aktif.']);
+        }
+
+        $now = Carbon::now('Asia/Jakarta');
+        $hari = $histori->perpanjangan_hari ?: 7;
+        $base = $histori->tanggal_jatuh_tempo
+            ? Carbon::parse($histori->tanggal_jatuh_tempo)
+            : $now;
+
+        $histori->update([
+            'tanggal_jatuh_tempo' => $base->copy()->addDays($hari),
+            'perpanjangan_status' => 'disetujui',
+            'perpanjangan_disetujui_by' => Auth::id(),
+            'perpanjangan_disetujui_at' => $now,
+            'perpanjangan_ditolak_at' => null,
+            'perpanjangan_reject_reason' => null,
+        ]);
+
+        $this->logAudit('approve_extend', 'histori_peminjaman', $histori->id, [
+            'kode_barang' => $histori->kode_barang,
+            'nup' => $histori->nup,
+            'nip_peminjam' => $histori->nip_peminjam,
+            'hari' => $hari,
+        ]);
+
+        return redirect()->back()->with('success', 'Perpanjangan peminjaman disetujui.');
+    }
+
+    public function rejectExtension(Request $request, $id)
+    {
+        $request->validate([
+            'perpanjangan_reject_reason' => 'nullable|string|max:255',
+        ]);
+
+        $histori = HistoriPeminjaman::findOrFail($id);
+
+        if ($histori->status !== 'dipinjam' || $histori->perpanjangan_status !== 'menunggu') {
+            return redirect()->back()->withErrors(['status' => 'Tidak ada pengajuan perpanjangan yang aktif.']);
+        }
+
+        $now = Carbon::now('Asia/Jakarta');
+
+        $histori->update([
+            'perpanjangan_status' => 'ditolak',
+            'perpanjangan_ditolak_at' => $now,
+            'perpanjangan_reject_reason' => $request->perpanjangan_reject_reason,
+        ]);
+
+        $this->logAudit('reject_extend', 'histori_peminjaman', $histori->id, [
+            'kode_barang' => $histori->kode_barang,
+            'nup' => $histori->nup,
+            'nip_peminjam' => $histori->nip_peminjam,
+            'reason' => $request->perpanjangan_reject_reason,
+        ]);
+
+        return redirect()->back()->with('success', 'Perpanjangan peminjaman ditolak.');
+    }
 }

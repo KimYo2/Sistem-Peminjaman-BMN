@@ -12,6 +12,7 @@ Route::middleware(['web', Authenticate::class])->group(function () {
 
     // User Histori (New Migration)
     Route::get('/histori', [App\Http\Controllers\User\HistoriController::class, 'index'])->name('user.histori.index');
+    Route::post('/histori/{id}/extend', [App\Http\Controllers\User\HistoriController::class, 'extend'])->name('user.histori.extend');
 
     // User Dashboard (New Migration)
     Route::get('/dashboard', [App\Http\Controllers\User\DashboardController::class, 'index'])->name('user.dashboard');
@@ -49,6 +50,8 @@ Route::middleware(['web', Authenticate::class])->group(function () {
         Route::get('/admin/histori', [App\Http\Controllers\Admin\HistoriController::class, 'index'])->name('admin.histori.index');
         Route::post('/admin/histori/{id}/approve', [App\Http\Controllers\Admin\HistoriController::class, 'approve'])->name('admin.histori.approve');
         Route::post('/admin/histori/{id}/reject', [App\Http\Controllers\Admin\HistoriController::class, 'reject'])->name('admin.histori.reject');
+        Route::post('/admin/histori/{id}/extend/approve', [App\Http\Controllers\Admin\HistoriController::class, 'approveExtension'])->name('admin.histori.extend.approve');
+        Route::post('/admin/histori/{id}/extend/reject', [App\Http\Controllers\Admin\HistoriController::class, 'rejectExtension'])->name('admin.histori.extend.reject');
         Route::get('/admin/histori/export', [App\Http\Controllers\Admin\HistoriController::class, 'export'])->name('admin.histori.export');
     });
 });

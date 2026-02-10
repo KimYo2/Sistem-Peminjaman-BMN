@@ -25,6 +25,14 @@ class HistoriPeminjaman extends Model
         'approved_at',
         'rejected_at',
         'rejection_reason',
+        'perpanjangan_status',
+        'perpanjangan_hari',
+        'perpanjangan_diminta_at',
+        'perpanjangan_disetujui_by',
+        'perpanjangan_disetujui_at',
+        'perpanjangan_ditolak_at',
+        'perpanjangan_alasan',
+        'perpanjangan_reject_reason',
     ];
 
     protected $casts = [
@@ -34,6 +42,9 @@ class HistoriPeminjaman extends Model
         'tanggal_jatuh_tempo' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'perpanjangan_diminta_at' => 'datetime',
+        'perpanjangan_disetujui_at' => 'datetime',
+        'perpanjangan_ditolak_at' => 'datetime',
     ];
 
     public $timestamps = false;
