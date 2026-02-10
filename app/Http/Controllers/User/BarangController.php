@@ -7,6 +7,7 @@ use App\Http\Requests\User\BorrowBarangRequest;
 use App\Services\BmnParser;
 use App\Models\Barang;
 use App\Models\HistoriPeminjaman;
+use App\Models\Waitlist;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -39,7 +40,40 @@ class BarangController extends Controller
             ->where('status', 'dipinjam')
             ->exists();
 
-        return view('user.barang.show', compact('barang', 'isBorrowing'));
+        $queueCount = Waitlist::where('kode_barang', $kode_barang)
+            ->where('nup', $nup)
+            ->where('status', 'aktif')
+            ->count();
+
+        $userWaitlist = Waitlist::where('kode_barang', $kode_barang)
+            ->where('nup', $nup)
+            ->where('nip_peminjam', $user->nip)
+            ->whereIn('status', ['aktif', 'notified'])
+            ->orderByDesc('id')
+            ->first();
+
+        $waitlistPosition = null;
+        if ($userWaitlist && $userWaitlist->status === 'aktif') {
+            $waitlistPosition = Waitlist::where('kode_barang', $kode_barang)
+                ->where('nup', $nup)
+                ->where('status', 'aktif')
+                ->where(function ($query) use ($userWaitlist) {
+                    $query->where('requested_at', '<', $userWaitlist->requested_at)
+                        ->orWhere(function ($subQuery) use ($userWaitlist) {
+                            $subQuery->where('requested_at', '=', $userWaitlist->requested_at)
+                                ->where('id', '<=', $userWaitlist->id);
+                        });
+                })
+                ->count();
+        }
+
+        return view('user.barang.show', compact(
+            'barang',
+            'isBorrowing',
+            'queueCount',
+            'userWaitlist',
+            'waitlistPosition'
+        ));
     }
 
     public function store(BorrowBarangRequest $request)

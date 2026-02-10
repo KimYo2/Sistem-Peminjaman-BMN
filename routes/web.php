@@ -23,6 +23,8 @@ Route::middleware(['web', Authenticate::class])->group(function () {
     // User Barang Detail & Borrow
     Route::get('/barang/{nomor_bmn}', [App\Http\Controllers\User\BarangController::class, 'show'])->name('user.barang.show');
     Route::post('/barang/borrow', [App\Http\Controllers\User\BarangController::class, 'store'])->name('user.barang.borrow');
+    Route::post('/barang/{nomor_bmn}/waitlist', [App\Http\Controllers\User\WaitlistController::class, 'join'])->name('user.waitlist.join');
+    Route::post('/waitlist/{id}/cancel', [App\Http\Controllers\User\WaitlistController::class, 'cancel'])->name('user.waitlist.cancel');
 
     // Admin Only Routes
     Route::middleware([EnsureAdmin::class])->group(function () {

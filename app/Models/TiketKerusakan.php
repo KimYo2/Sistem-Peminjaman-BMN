@@ -14,12 +14,24 @@ class TiketKerusakan extends Model
         'jenis_kerusakan',
         'deskripsi',
         'status',
-        'tanggal_lapor'
+        'tanggal_lapor',
+        'priority',
+        'assigned_to',
+        'target_selesai_at',
+        'closed_at',
+        'admin_notes',
     ];
 
     protected $casts = [
         'tanggal_lapor' => 'datetime',
+        'target_selesai_at' => 'datetime',
+        'closed_at' => 'datetime',
     ];
 
     public $timestamps = false;
+
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
 }

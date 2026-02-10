@@ -65,6 +65,23 @@
                             </p>
                         </div>
                     </div>
+
+                    <div
+                        class="bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+                        <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Waitlist</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Total antrean aktif: <span class="font-semibold">{{ $queueCount ?? 0 }}</span>
+                        </p>
+                        @if(isset($userWaitlist) && $userWaitlist)
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                Status antrean Anda:
+                                <span class="font-semibold uppercase">{{ $userWaitlist->status }}</span>
+                                @if(!empty($waitlistPosition))
+                                    (posisi {{ $waitlistPosition }})
+                                @endif
+                            </p>
+                        @endif
+                    </div>
                 @endif
 
             </div>
@@ -91,15 +108,23 @@
                         </svg>
                     </button>
                 @else
-                    <button disabled
-                        class="w-full bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-semibold py-3 px-4 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                            </path>
-                        </svg>
-                        Barang Sedang Dipinjam
-                    </button>
+                    @if(isset($userWaitlist) && $userWaitlist)
+                        <form method="POST" action="{{ route('user.waitlist.cancel', $userWaitlist->id) }}">
+                            @csrf
+                            <button type="submit"
+                                class="w-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2">
+                                Batal Waitlist
+                            </button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('user.waitlist.join', $barang->nomor_bmn_full) }}">
+                            @csrf
+                            <button type="submit"
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                                Masuk Waitlist
+                            </button>
+                        </form>
+                    @endif
                 @endif
             </div>
 

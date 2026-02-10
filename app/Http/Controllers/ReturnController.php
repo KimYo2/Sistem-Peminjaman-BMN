@@ -3,7 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReturnStoreRequest;
+use App\Models\HistoriPeminjaman;
+use App\Models\TiketKerusakan;
+use App\Models\User;
+use App\Models\Waitlist;
 use App\Services\BmnParser;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReturnController extends Controller
 {
@@ -40,9 +48,9 @@ class ReturnController extends Controller
                 return response()->json(['success' => false, 'message' => 'Kode barang tidak valid'], 400);
             }
 
-            $user = \Illuminate\Support\Facades\Auth::user();
+            $user = Auth::user();
 
-            $query = \App\Models\HistoriPeminjaman::where('kode_barang', $kode_barang)
+            $query = HistoriPeminjaman::where('kode_barang', $kode_barang)
                 ->where('status', 'dipinjam');
 
             if (!is_null($nup)) {
@@ -62,12 +70,12 @@ class ReturnController extends Controller
                 ], 404);
             }
 
-            $waktu_kembali = \Carbon\Carbon::now('Asia/Jakarta');
+            $waktu_kembali = Carbon::now('Asia/Jakarta');
 
             // Use found NUP from peminjaman if strict NUP was not possible (e.g. only code scanned)
             $target_nup = $peminjaman->nup;
 
-            \Illuminate\Support\Facades\DB::transaction(function () use ($peminjaman, $kode_barang, $target_nup, $waktu_kembali, $nomor_bmn, $request, $user, $data) {
+            DB::transaction(function () use ($peminjaman, $kode_barang, $target_nup, $waktu_kembali, $request, $user, $data) {
                 $isDamagedValue = $request->boolean('is_damaged');
                 $shouldCreateTicket = $isDamagedValue;
 
@@ -92,7 +100,7 @@ class ReturnController extends Controller
                     ]);
 
                 // Create damage ticket if item is damaged
-                \Log::info('Damage ticket check', [
+                Log::info('Damage ticket check', [
                     'is_damaged_raw' => $isDamagedValue,
                     'is_damaged_type' => gettype($isDamagedValue),
                     'should_create' => $shouldCreateTicket,
@@ -101,7 +109,7 @@ class ReturnController extends Controller
                 ]);
 
                 if ($shouldCreateTicket) {
-                    $ticket = \App\Models\TiketKerusakan::create([
+                    $ticket = TiketKerusakan::create([
                         'nomor_bmn' => $kode_barang . '-' . $target_nup,
                         'pelapor' => $user->nama ?? $user->name ?? 'System',
                         'jenis_kerusakan' => $data['jenis_kerusakan'] ?? 'ringan',
@@ -109,7 +117,43 @@ class ReturnController extends Controller
                         'status' => 'open'
                     ]);
 
-                    \Log::info('Damage ticket created', ['ticket_id' => $ticket->id]);
+                    Log::info('Damage ticket created', ['ticket_id' => $ticket->id]);
+                }
+
+                // Auto-process first waitlist entry (FIFO) when item becomes available
+                $nextWaitlist = Waitlist::where('kode_barang', $kode_barang)
+                    ->where('nup', $target_nup)
+                    ->where('status', 'aktif')
+                    ->orderBy('requested_at')
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($nextWaitlist) {
+                    $waitUser = User::where('nip', $nextWaitlist->nip_peminjam)->first();
+
+                    if ($waitUser) {
+                        HistoriPeminjaman::create([
+                            'kode_barang' => $kode_barang,
+                            'nup' => $target_nup,
+                            'nip_peminjam' => $waitUser->nip,
+                            'nama_peminjam' => $waitUser->nama,
+                            'waktu_pengajuan' => $waktu_kembali,
+                            'waktu_pinjam' => null,
+                            'status' => 'menunggu',
+                        ]);
+
+                        $nextWaitlist->update([
+                            'status' => 'fulfilled',
+                            'notified_at' => $waktu_kembali,
+                            'fulfilled_at' => $waktu_kembali,
+                        ]);
+                    } else {
+                        $nextWaitlist->update([
+                            'status' => 'cancelled',
+                            'cancelled_at' => $waktu_kembali,
+                        ]);
+                    }
                 }
             });
 
