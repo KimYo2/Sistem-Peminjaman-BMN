@@ -11,14 +11,23 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('histori_peminjaman', function (Blueprint $table) {
+            $driver = Schema::getConnection()->getDriverName();
             $table->id();
             $table->string('kode_barang', 20);
             $table->integer('nup');
             $table->string('nip_peminjam', 20);
             $table->string('nama_peminjam', 100);
-            $table->timestamp('waktu_pinjam');
+            if ($driver === 'sqlite') {
+                $table->timestamp('waktu_pinjam')->nullable();
+            } else {
+                $table->timestamp('waktu_pinjam');
+            }
             $table->timestamp('waktu_kembali')->nullable();
-            $table->enum('status', ['dipinjam', 'dikembalikan'])->default('dipinjam');
+            if ($driver === 'sqlite') {
+                $table->string('status', 20)->default('menunggu');
+            } else {
+                $table->enum('status', ['dipinjam', 'dikembalikan'])->default('dipinjam');
+            }
             $table->timestamps();
 
             // Foreign keys

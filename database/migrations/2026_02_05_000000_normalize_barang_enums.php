@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Temporarily relax to string to avoid ENUM duplicate issues across collations
         DB::statement("ALTER TABLE barang MODIFY kondisi_terakhir VARCHAR(30) NOT NULL DEFAULT ''");
 
@@ -20,6 +24,10 @@ return new class extends Migration {
 
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Temporarily relax to string to avoid ENUM duplicate issues across collations
         DB::statement("ALTER TABLE barang MODIFY kondisi_terakhir VARCHAR(30) NOT NULL DEFAULT ''");
 

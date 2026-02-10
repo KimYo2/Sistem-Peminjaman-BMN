@@ -11,6 +11,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        $driver = Schema::getConnection()->getDriverName();
+
         Schema::table('histori_peminjaman', function (Blueprint $table) {
             $table->timestamp('waktu_pengajuan')->nullable()->after('nama_peminjam');
             $table->timestamp('tanggal_jatuh_tempo')->nullable()->after('waktu_kembali');
@@ -24,11 +26,13 @@ return new class extends Migration {
             $table->foreign('approved_by')->references('id')->on('users')->nullOnDelete();
         });
 
-        // Convert enum to string to allow additional statuses (menunggu/ditolak)
-        DB::statement("ALTER TABLE histori_peminjaman MODIFY status VARCHAR(20) NOT NULL DEFAULT 'menunggu'");
+        if ($driver !== 'sqlite') {
+            // Convert enum to string to allow additional statuses (menunggu/ditolak)
+            DB::statement("ALTER TABLE histori_peminjaman MODIFY status VARCHAR(20) NOT NULL DEFAULT 'menunggu'");
 
-        // Allow pending requests without waktu_pinjam
-        DB::statement('ALTER TABLE histori_peminjaman MODIFY waktu_pinjam TIMESTAMP NULL');
+            // Allow pending requests without waktu_pinjam
+            DB::statement('ALTER TABLE histori_peminjaman MODIFY waktu_pinjam TIMESTAMP NULL');
+        }
     }
 
     /**
@@ -36,6 +40,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        $driver = Schema::getConnection()->getDriverName();
+
         Schema::table('histori_peminjaman', function (Blueprint $table) {
             $table->dropForeign(['approved_by']);
             $table->dropColumn([
@@ -48,7 +54,9 @@ return new class extends Migration {
             ]);
         });
 
-        DB::statement("ALTER TABLE histori_peminjaman MODIFY status ENUM('dipinjam','dikembalikan') NOT NULL DEFAULT 'dipinjam'");
-        DB::statement('ALTER TABLE histori_peminjaman MODIFY waktu_pinjam TIMESTAMP NOT NULL');
+        if ($driver !== 'sqlite') {
+            DB::statement("ALTER TABLE histori_peminjaman MODIFY status ENUM('dipinjam','dikembalikan') NOT NULL DEFAULT 'dipinjam'");
+            DB::statement('ALTER TABLE histori_peminjaman MODIFY waktu_pinjam TIMESTAMP NOT NULL');
+        }
     }
 };
