@@ -39,19 +39,23 @@ pinjam_qr/
 |-- app/
 |   |-- Http/
 |   |   |-- Controllers/
-|   |   |   |-- Admin/           # Controller Admin (Barang, Histori, Tiket)
+|   |   |   |-- Admin/           # Controller Admin (Barang, Histori, Tiket, Opname)
 |   |   |   |-- Auth/            # Controller Login/Logout
-|   |   |   |-- User/            # Controller User (Dashboard, Scan, Peminjaman)
+|   |   |   |-- User/            # Controller User (Dashboard, Scan, Peminjaman, Waitlist)
 |   |   |   `-- Concerns/        # Trait helper (Audit Log)
 |   |   |-- Middleware/          # Middleware (Auth, EnsureAdmin)
 |   |   `-- Requests/
 |   |       |-- Admin/           # Form Request admin
 |   |       `-- User/            # Form Request user
-|   |-- Models/                  # Model Eloquent
+|   |-- Models/                  # Model Eloquent (Barang, Histori, Tiket, Waitlist, Opname)
 |   `-- Services/                # Service layer (Parser, Import)
 |-- resources/
 |   `-- views/
 |       |-- admin/               # View Admin (Blade)
+|       |   |-- barang/
+|       |   |-- histori/
+|       |   |-- tiket/
+|       |   `-- opname/
 |       |-- auth/                # View Login
 |       |-- layouts/             # Master Layout (Tailwind)
 |       |-- return/              # View Scan Pengembalian
@@ -64,6 +68,9 @@ pinjam_qr/
 |   `-- index.php
 |-- database/
 |   `-- migrations/              # Definisi Schema Database
+|-- tests/
+|   |-- Feature/                 # Feature tests (Borrow, Return, Waitlist, Opname, Ticket)
+|   `-- Unit/                    # Unit tests
 `-- README.md
 ```
 
