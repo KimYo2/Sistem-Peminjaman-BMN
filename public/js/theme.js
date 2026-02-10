@@ -6,17 +6,90 @@
     }
 
     const storageKey = 'pinjam_qr_theme';
+    const cookieKey = 'pinjam_qr_theme';
+    const sessionKey = 'pinjam_qr_theme';
     const html = document.documentElement;
 
-    function getStoredTheme() {
-        const value = localStorage.getItem(storageKey);
+    function safeReadLocalStorage(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function safeWriteLocalStorage(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function safeReadSessionStorage(key) {
+        try {
+            return sessionStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function safeWriteSessionStorage(key, value) {
+        try {
+            sessionStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function readCookie(key) {
+        const parts = document.cookie ? document.cookie.split('; ') : [];
+        for (const part of parts) {
+            const [name, ...rest] = part.split('=');
+            if (name === key) {
+                return decodeURIComponent(rest.join('='));
+            }
+        }
+        return null;
+    }
+
+    function writeCookie(key, value) {
+        const maxAge = 60 * 60 * 24 * 365; // 1 year
+        document.cookie = `${key}=${encodeURIComponent(value)};path=/;max-age=${maxAge};SameSite=Lax`;
+    }
+
+    function normalizeTheme(value) {
         if (value === 'light' || value === 'dark') {
             return value;
         }
-        if (value !== null) {
-            localStorage.removeItem(storageKey);
-        }
         return null;
+    }
+
+    function getStoredTheme() {
+        const localValue = normalizeTheme(safeReadLocalStorage(storageKey));
+        if (localValue) {
+            return localValue;
+        }
+
+        const sessionValue = normalizeTheme(safeReadSessionStorage(sessionKey));
+        if (sessionValue) {
+            return sessionValue;
+        }
+
+        const cookieValue = normalizeTheme(readCookie(cookieKey));
+        if (cookieValue) {
+            return cookieValue;
+        }
+
+        return null;
+    }
+
+    function persistTheme(theme) {
+        safeWriteLocalStorage(storageKey, theme);
+        safeWriteSessionStorage(sessionKey, theme);
+        writeCookie(cookieKey, theme);
     }
 
     function applyTheme(theme) {
@@ -29,7 +102,10 @@
         if (storedTheme) {
             return storedTheme;
         }
-        return 'dark';
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
     }
 
     function syncToggleIcons() {
@@ -91,7 +167,7 @@
                 : 'dark';
 
             applyTheme(nextTheme);
-            localStorage.setItem(storageKey, nextTheme);
+            persistTheme(nextTheme);
             syncToggleIcons();
         });
     });
