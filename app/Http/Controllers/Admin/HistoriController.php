@@ -28,13 +28,68 @@ class HistoriController extends Controller
 
     public function export(Request $request)
     {
-        $query = HistoriPeminjaman::query()
-            ->filter($request->only(['status', 'search']));
+        $filters = $request->only(['status', 'search']);
 
-        $filename = 'histori_peminjaman_' . now()->format('Ymd_His') . '.csv';
+        $query = HistoriPeminjaman::query()
+            ->select([
+                'id',
+                'kode_barang',
+                'nup',
+                'nip_peminjam',
+                'nama_peminjam',
+                'status',
+                'waktu_pengajuan',
+                'waktu_pinjam',
+                'waktu_kembali',
+                'tanggal_jatuh_tempo',
+                'kondisi_awal',
+                'kondisi_kembali',
+                'catatan_kondisi',
+            ])
+            ->filter($filters);
+
+        $filename = 'histori_peminjaman_' . Carbon::now('Asia/Jakarta')->format('Ymd_His') . '.csv';
+
+        $this->logAudit('export', 'histori_peminjaman', null, [
+            'filters' => array_filter($filters, fn ($value) => $value !== null && $value !== ''),
+            'format' => 'csv',
+        ]);
 
         return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');
+            // UTF-8 BOM for Excel compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            $csvSafe = function ($value): string {
+                if ($value === null) {
+                    return '';
+                }
+
+                $value = (string) $value;
+
+                if ($value === '') {
+                    return '';
+                }
+
+                // Prevent CSV injection in Excel/Sheets
+                if (preg_match('/^[=+\-@]/', $value)) {
+                    return "'" . $value;
+                }
+
+                return $value;
+            };
+
+            $csvText = function ($value) use ($csvSafe): string {
+                $value = $csvSafe($value);
+
+                if ($value === '') {
+                    return '';
+                }
+
+                // Force Excel to keep identifiers as text (NIP/NUP/kode)
+                return "\t" . $value;
+            };
+
             fputcsv($handle, [
                 'Kode Barang',
                 'NUP',
@@ -50,28 +105,32 @@ class HistoriController extends Controller
                 'Catatan Kondisi',
             ]);
 
-            $query->orderBy('waktu_pinjam', 'desc')->chunk(200, function ($rows) use ($handle) {
+            $query->orderBy('waktu_pinjam', 'desc')
+                ->orderBy('id', 'desc')
+                ->chunk(200, function ($rows) use ($handle, $csvSafe, $csvText) {
                 foreach ($rows as $row) {
                     fputcsv($handle, [
-                        $row->kode_barang,
-                        $row->nup,
-                        $row->nip_peminjam,
-                        $row->nama_peminjam,
-                        $row->status,
+                        $csvText($row->kode_barang),
+                        $csvText($row->nup),
+                        $csvText($row->nip_peminjam),
+                        $csvSafe($row->nama_peminjam),
+                        $csvSafe($row->status),
                         optional($row->waktu_pengajuan)->format('Y-m-d H:i:s'),
                         optional($row->waktu_pinjam)->format('Y-m-d H:i:s'),
                         optional($row->waktu_kembali)->format('Y-m-d H:i:s'),
                         optional($row->tanggal_jatuh_tempo)->format('Y-m-d'),
-                        $row->kondisi_awal,
-                        $row->kondisi_kembali,
-                        $row->catatan_kondisi,
+                        $csvSafe($row->kondisi_awal),
+                        $csvSafe($row->kondisi_kembali),
+                        $csvSafe($row->catatan_kondisi),
                     ]);
                 }
             });
 
             fclose($handle);
         }, $filename, [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 

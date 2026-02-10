@@ -110,8 +110,28 @@
                                                     {{ ucfirst($item->ketersediaan) }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-xs">
-                                                {{ $item->peminjam_terakhir ?? '-' }}
+                                            <td class="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 text-xs">
+                                                @if(!empty($item->peminjam_terakhir))
+                                                    <div class="text-slate-700 dark:text-slate-200 text-xs font-medium">
+                                                        {{ $item->peminjam_terakhir }}
+                                                    </div>
+                                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                                                        @if($item->ketersediaan === 'dipinjam')
+                                                            Dipinjam
+                                                            {{ $item->waktu_pinjam ? \Carbon\Carbon::parse($item->waktu_pinjam)->format('d/m/Y H:i') : '-' }}
+                                                        @elseif($item->waktu_kembali)
+                                                            Kembali
+                                                            {{ \Carbon\Carbon::parse($item->waktu_kembali)->format('d/m/Y H:i') }}
+                                                        @elseif($item->waktu_pinjam)
+                                                            Terakhir dipinjam
+                                                            {{ \Carbon\Carbon::parse($item->waktu_pinjam)->format('d/m/Y H:i') }}
+                                                        @else
+                                                            Terakhir dipinjam -
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300 text-xs">
                                                 {{ $item->pic ? $item->pic->nama : '-' }}

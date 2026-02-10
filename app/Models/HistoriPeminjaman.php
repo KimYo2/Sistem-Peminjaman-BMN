@@ -48,6 +48,7 @@ class HistoriPeminjaman extends Model
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('kode_barang', 'like', "%{$search}%")
+                    ->orWhere('nup', 'like', "%{$search}%")
                     ->orWhere('nama_peminjam', 'like', "%{$search}%")
                     ->orWhere('nip_peminjam', 'like', "%{$search}%");
             });
