@@ -37,6 +37,36 @@ Aplikasi web untuk peminjaman inventaris BMN BPS dengan scan QR Code, persetujua
 - Toggle tema persist di localStorage + sessionStorage + cookie (`public/js/theme.js`), fallback bila Tailwind tidak termuat.
 - Blade + Tailwind CDN; aset tambahan di `public/js` dan `public/css`.
 
+## Struktur Folder
+```
+pinjam_qr/
+├─ app/
+│  ├─ Http/
+│  │  ├─ Controllers/
+│  │  │  ├─ Admin/            # Barang, Histori, StockOpname, TiketKerusakan
+│  │  │  ├─ User/             # Dashboard, Scan, Barang, Histori, Waitlist
+│  │  │  ├─ Auth/             # Login/Logout
+│  │  │  └─ ReturnController.php
+│  │  └─ Requests/            # Form Request Admin & User
+│  ├─ Models/                 # Barang, HistoriPeminjaman, Waitlist, TiketKerusakan(+Log), StockOpname*, AuditLog, User
+│  └─ Services/               # BmnParser, BarangImportService
+├─ database/
+│  └─ migrations/             # Schema (perpanjangan, waitlist, tiket kerusakan, stock opname, audit)
+├─ resources/
+│  └─ views/                  # Blade: admin/, user/, auth/, return/
+├─ public/
+│  ├─ js/                     # theme.js, scanner, helper JS
+│  ├─ css/                    # tambahan CSS
+│  └─ index.php
+├─ routes/
+│  └─ web.php                 # Definisi route (user/admin/return)
+├─ tests/
+│  ├─ Feature/                # Borrow/Return/Waitlist/Extend/Reject/Export/StockOpname/Ticket flows
+│  └─ Unit/
+├─ DOCUMENTATION.md           # Catatan tema & warna BPS
+└─ README.md
+```
+
 ## Arsitektur Singkat
 - Backend: Laravel 12, MySQL.
 - Frontend: Blade + Tailwind CDN, Alpine.js, html5-qrcode.
