@@ -82,6 +82,24 @@ pinjam_qr/
 - Stock opname: start sesi → scan setiap BMN → selesai → ekspor CSV.
 
 ## Instalasi & Menjalankan
+### Dari GitHub (clone)
+1) Clone repo:
+   ```
+   git clone https://github.com/KimYo2/Sistem-Peminjaman-BMN.git
+   cd Sistem-Peminjaman-BMN
+   ```
+2) Salin `.env` dari contoh:
+   ```
+   cp .env.example .env
+   ```
+3) Lanjut ke langkah konfigurasi DB di bawah.
+
+### Dari ZIP
+1) Download ZIP dari GitHub, ekstrak.
+2) Buka folder hasil ekstrak.
+3) Duplikasi `.env.example` menjadi `.env`.
+4) Lanjut ke langkah konfigurasi DB di bawah.
+
 1) Salin `.env`, set MySQL:
    ```
    DB_CONNECTION=mysql

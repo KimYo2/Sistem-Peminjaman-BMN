@@ -97,6 +97,23 @@
                         </svg>
                     </button>
 
+                    @auth
+                        @php
+                            $user = Auth::user();
+                            $displayName = $user->nama ?? $user->name ?? $user->nip ?? 'User';
+                            $isAdmin = ($user->role ?? '') === 'admin';
+                            $label = $isAdmin ? 'Admin - ' . $displayName : $displayName;
+                            $initial = mb_strtoupper(mb_substr($displayName, 0, 1));
+                        @endphp
+                        <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-sm font-semibold">
+                                {{ $initial }}
+                            </div>
+                            <span class="hidden sm:block text-sm font-medium">{{ $label }}</span>
+                        </div>
+                    @endauth
+
                     <!-- Logout -->
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
