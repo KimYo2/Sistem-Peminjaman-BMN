@@ -11,7 +11,8 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400">Buat akun baru untuk pegawai atau admin.</p>
             </div>
 
-            <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('admin.users.store') }}" method="POST"
+                  enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <div>
@@ -61,6 +62,43 @@
                     @enderror
                 </div>
 
+                {{-- Foto Profil --}}
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
+                        Foto Profil
+                        <span class="text-xs font-normal text-slate-400 ml-1">(opsional, maks. 2MB)</span>
+                    </label>
+
+                    {{-- Live preview --}}
+                    <div class="flex items-center gap-4 mb-3">
+                        <div id="avatar-preview-wrapper"
+                             class="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                            <img id="avatar-preview" src="" alt="Preview"
+                                 class="w-full h-full object-cover hidden">
+                            <svg id="avatar-placeholder" class="w-8 h-8 text-slate-400"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" name="foto" id="foto" accept="image/*"
+                                   class="block w-full text-sm text-slate-500 dark:text-slate-400
+                                          file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0
+                                          file:text-sm file:font-medium
+                                          file:bg-indigo-50 file:text-indigo-700
+                                          hover:file:bg-indigo-100
+                                          dark:file:bg-indigo-900/30 dark:file:text-indigo-300
+                                          cursor-pointer">
+                            <p class="text-xs text-slate-400 mt-1">JPG, PNG, atau WebP. Jika tidak diisi, avatar otomatis dibuat dari inisial nama.</p>
+                        </div>
+                    </div>
+
+                    @error('foto')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label for="password"
@@ -95,4 +133,20 @@
         </div>
 
     </div>
+
+    <script>
+    document.getElementById('foto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const img = document.getElementById('avatar-preview');
+            const placeholder = document.getElementById('avatar-placeholder');
+            img.src = ev.target.result;
+            img.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+    </script>
 @endsection

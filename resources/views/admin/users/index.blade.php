@@ -58,9 +58,6 @@
                     <tr>
                         <th
                             class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                            NIP</th>
-                        <th
-                            class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                             Nama</th>
                         <th
                             class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
@@ -79,11 +76,17 @@
                 <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700">
                     @forelse($users as $user)
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                            <td class="px-4 py-3 text-sm font-mono text-slate-700 dark:text-slate-300">
-                                {{ $user->nip }}
-                            </td>
-                            <td class="px-4 py-3 text-sm text-slate-900 dark:text-white font-medium">
-                                {{ $user->name }}
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ $user->avatar_url }}"
+                                         alt="{{ $user->name }}"
+                                         class="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-600"
+                                         loading="lazy">
+                                    <div>
+                                        <p class="font-medium text-slate-800 dark:text-white text-sm">{{ $user->name }}</p>
+                                        <p class="text-xs text-slate-400">{{ $user->nip }}</p>
+                                    </div>
+                                </div>
                             </td>
                             <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
                                 {{ $user->email }}
@@ -132,7 +135,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                            <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                                 Tidak ada user ditemukan.
                             </td>
                         </tr>

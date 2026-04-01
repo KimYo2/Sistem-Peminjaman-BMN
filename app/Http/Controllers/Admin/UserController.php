@@ -40,13 +40,20 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
-            'nip' => $data['nip'],
-            'name' => $data['name'],
-            'email' => $data['email'],
+        $createData = [
+            'nip'      => $data['nip'],
+            'name'     => $data['name'],
+            'email'    => $data['email'],
             'password' => $data['password'],
-            'role' => $data['role'],
-        ]);
+            'role'     => $data['role'],
+        ];
+
+        if ($request->hasFile('foto')) {
+            $createData['foto_path'] = $request->file('foto')
+                ->store('users/avatar', 'public');
+        }
+
+        $user = User::create($createData);
 
         $this->logAudit('create', 'user', $user->id, [
             'nip' => $user->nip,
