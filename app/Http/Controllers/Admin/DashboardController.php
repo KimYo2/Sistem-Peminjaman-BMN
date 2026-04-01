@@ -71,6 +71,32 @@ class DashboardController extends Controller
             ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, waktu_pinjam, waktu_kembali)) as avg_hours')
             ->value('avg_hours');
 
+        // Monthly borrowing trend (last 6 months)
+        $monthlyTrend = DB::table('histori_peminjaman')
+            ->select(
+                DB::raw('MONTH(waktu_pinjam) as bulan'),
+                DB::raw('YEAR(waktu_pinjam) as tahun'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereNotNull('waktu_pinjam')
+            ->where('waktu_pinjam', '>=', Carbon::now()->subMonths(6))
+            ->whereIn('status', ['dipinjam', 'dikembalikan'])
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        // Item condition breakdown
+        $kondisiBreakdown = Barang::select('kondisi_terakhir', DB::raw('COUNT(*) as total'))
+            ->groupBy('kondisi_terakhir')
+            ->get();
+
+        // Borrowing status breakdown
+        $statusBreakdown = DB::table('histori_peminjaman')
+            ->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalBarang',
             'tersedia',
@@ -80,7 +106,10 @@ class DashboardController extends Controller
             'overdueList',
             'topItems',
             'topBorrowers',
-            'avgBorrowHours'
+            'avgBorrowHours',
+            'monthlyTrend',
+            'kondisiBreakdown',
+            'statusBreakdown'
         ));
     }
 }

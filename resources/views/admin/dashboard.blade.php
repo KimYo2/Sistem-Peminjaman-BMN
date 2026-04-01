@@ -169,6 +169,36 @@
             </div>
         </div>
 
+        <!-- Statistik & Grafik -->
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4 transition-colors">Statistik &amp; Grafik</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+            {{-- Chart 1: Monthly Trend — spans 2 columns --}}
+            <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-colors">
+                <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-4">Tren Peminjaman 6 Bulan Terakhir</h3>
+                <div class="relative h-56">
+                    <canvas id="chartTrend"></canvas>
+                </div>
+            </div>
+
+            {{-- Chart 2: Condition Doughnut --}}
+            <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-colors">
+                <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-4">Kondisi Barang</h3>
+                <div class="relative h-56">
+                    <canvas id="chartKondisi"></canvas>
+                </div>
+            </div>
+
+            {{-- Chart 3: Status Horizontal Bar --}}
+            <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-colors">
+                <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-4">Status Peminjaman</h3>
+                <div class="relative h-56">
+                    <canvas id="chartStatus"></canvas>
+                </div>
+            </div>
+
+        </div>
+
         <!-- Quick Actions -->
         <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4 transition-colors">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -291,3 +321,139 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const isDark = document.documentElement.classList.contains('dark');
+    const gridColor  = isDark ? 'rgba(148,163,184,0.12)' : 'rgba(148,163,184,0.25)';
+    const tickColor  = isDark ? '#94A3B8' : '#64748B';
+
+    Chart.defaults.color = tickColor;
+    Chart.defaults.borderColor = gridColor;
+    Chart.defaults.font.family = 'ui-sans-serif, system-ui, sans-serif';
+    Chart.defaults.font.size   = 12;
+
+    const monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+
+    /* ─── Chart 1: Monthly Trend Line ─── */
+    const monthlyTrendData = @json($monthlyTrend);
+    const trendLabels = monthlyTrendData.map(d => monthNames[parseInt(d.bulan) - 1] + " '" + String(d.tahun).slice(2));
+    const trendValues = monthlyTrendData.map(d => parseInt(d.total));
+
+    new Chart(document.getElementById('chartTrend'), {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Jumlah Peminjaman',
+                data: trendValues,
+                borderColor: '#0052A3',
+                backgroundColor: 'rgba(0,82,163,0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#0052A3',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.35,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1, precision: 0 } }
+            }
+        }
+    });
+
+    /* ─── Chart 2: Condition Doughnut ─── */
+    const kondisiRaw = @json($kondisiBreakdown);
+    const kondisiLabelMap = { baik: 'Baik', rusak_ringan: 'Rusak Ringan', rusak_berat: 'Rusak Berat' };
+    const kondisiColorMap = { baik: '#10B981', rusak_ringan: '#F59E0B', rusak_berat: '#EF4444' };
+
+    const kondisiLabels = kondisiRaw.map(d => kondisiLabelMap[d.kondisi_terakhir] ?? d.kondisi_terakhir);
+    const kondisiValues = kondisiRaw.map(d => parseInt(d.total));
+    const kondisiColors = kondisiRaw.map(d => kondisiColorMap[d.kondisi_terakhir] ?? '#94A3B8');
+
+    new Chart(document.getElementById('chartKondisi'), {
+        type: 'doughnut',
+        data: {
+            labels: kondisiLabels,
+            datasets: [{
+                data: kondisiValues,
+                backgroundColor: kondisiColors,
+                borderColor: isDark ? '#1e293b' : '#fff',
+                borderWidth: 3,
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, color: tickColor } },
+                tooltip: {
+                    callbacks: {
+                        label: function (ctx) {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct   = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                            return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    /* ─── Chart 3: Status Horizontal Bar ─── */
+    const statusRaw = @json($statusBreakdown);
+    const statusOrder    = ['menunggu','dipinjam','dikembalikan','ditolak','terlambat'];
+    const statusLabelMap = { menunggu: 'Menunggu', dipinjam: 'Dipinjam', dikembalikan: 'Dikembalikan', ditolak: 'Ditolak', terlambat: 'Terlambat' };
+    const statusColorMap = { menunggu: '#94A3B8', dipinjam: '#3B82F6', dikembalikan: '#10B981', ditolak: '#EF4444', terlambat: '#F97316' };
+
+    const statusMapObj = {};
+    statusRaw.forEach(d => statusMapObj[d.status] = parseInt(d.total));
+
+    const extraStatuses = statusRaw.map(d => d.status).filter(s => !statusOrder.includes(s));
+    const allStatuses   = [...statusOrder, ...extraStatuses];
+
+    const statusLabels = allStatuses.map(s => statusLabelMap[s] ?? s);
+    const statusValues = allStatuses.map(s => statusMapObj[s] ?? 0);
+    const statusColors = allStatuses.map(s => statusColorMap[s] ?? '#94A3B8');
+
+    new Chart(document.getElementById('chartStatus'), {
+        type: 'bar',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                label: 'Jumlah',
+                data: statusValues,
+                backgroundColor: statusColors,
+                borderRadius: 5,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: tickColor, precision: 0 } },
+                y: { grid: { display: false }, ticks: { color: tickColor } }
+            }
+        }
+    });
+})();
+</script>
+@endpush
