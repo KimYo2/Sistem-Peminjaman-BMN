@@ -207,25 +207,36 @@
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-center">
                                             <div class="flex items-center justify-center gap-1" x-data="{ openStatus: false }">
-                                                <a href="{{ route('admin.barang.qr-label', $item->id) }}" target="_blank"
-                                                    title="Cetak QR"
-                                                    class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition">
-                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                                                        </path>
-                                                    </svg>
-                                                </a>
-                                                <a href="{{ route('admin.barang.edit', $item->id) }}" title="Edit"
-                                                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition">
-                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                                        </path>
-                                                    </svg>
-                                                </a>
+                                                <div class="relative group">
+                                                    <a href="{{ route('admin.barang.qr-label', $item->id) }}" target="_blank"
+                                                        title="Cetak QR"
+                                                        class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition">
+                                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                                                            </path>
+                                                        </svg>
+                                                    </a>
+                                                    <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 dark:bg-slate-700 px-2 py-1 text-xs text-white opacity-0 shadow transition-opacity group-hover:opacity-100 z-10">
+                                                        Cetak QR Label
+                                                    </span>
+                                                </div>
+                                                <div class="relative group">
+                                                    <a href="{{ route('admin.barang.edit', $item->id) }}" title="Edit"
+                                                        class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition">
+                                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                            </path>
+                                                        </svg>
+                                                    </a>
+                                                    <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 dark:bg-slate-700 px-2 py-1 text-xs text-white opacity-0 shadow transition-opacity group-hover:opacity-100 z-10">
+                                                        Edit Barang
+                                                    </span>
+                                                </div>
 
-                                                    {{-- Quick Status Change --}}
+                                                {{-- Quick Status Change --}}
+                                                <div class="relative group">
                                                     <button @click="openStatus = true" title="Ubah Status Barang"
                                                         class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300 p-1 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded transition">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,12 +244,17 @@
                                                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                                         </svg>
                                                     </button>
+                                                    <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 dark:bg-slate-700 px-2 py-1 text-xs text-white opacity-0 shadow transition-opacity group-hover:opacity-100 z-10">
+                                                        Ubah Status
+                                                    </span>
+                                                </div>
 
-                                                    <form action="{{ route('admin.barang.destroy', $item->id) }}" method="POST"
-                                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');"
-                                                        class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
+                                                <form action="{{ route('admin.barang.destroy', $item->id) }}" method="POST"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');"
+                                                    class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <div class="relative group">
                                                         <button type="submit"
                                                             class="text-rose-600 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300 p-1 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded transition">
                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,7 +263,11 @@
                                                                 </path>
                                                             </svg>
                                                         </button>
-                                                    </form>
+                                                        <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 dark:bg-slate-700 px-2 py-1 text-xs text-white opacity-0 shadow transition-opacity group-hover:opacity-100 z-10">
+                                                            Hapus Barang
+                                                        </span>
+                                                    </div>
+                                                </form>
 
                                                     {{-- Status Change Modal --}}
                                                     <div x-show="openStatus"
