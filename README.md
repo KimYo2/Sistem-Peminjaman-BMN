@@ -32,35 +32,9 @@ Sistem manajemen inventaris dan peminjaman aset perkantoran berbasis web untuk B
 
 ---
 
-## Struktur Folder
+## Struktur Proyek
 
-```
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/          # Barang, Histori, StockOpname, TiketKerusakan
-│   │   │   ├── Auth/           # Login / Logout
-│   │   │   ├── User/           # Dashboard, Scan, Barang, Histori, Waitlist
-│   │   │   └── ReturnController.php
-│   │   ├── Middleware/         # EnsureAdmin
-│   │   └── Requests/           # Form Request (Admin & User)
-│   ├── Models/                 # Barang, HistoriPeminjaman, Waitlist, TiketKerusakan, StockOpname*, AuditLog, User
-│   └── Services/               # BmnParser, BarangImportService
-├── database/
-│   ├── migrations/             # Semua schema termasuk waitlist, tiket, stock opname, audit
-│   └── seeders/                # Data demo barang & user
-├── resources/
-│   └── views/                  # Blade: admin/, user/, auth/, return/, layouts/
-├── public/
-│   ├── css/                    # Stylesheet tambahan
-│   └── js/                     # theme.js, scanner, helper JS
-├── routes/
-│   └── web.php                 # Definisi route (user / admin / return / auth)
-├── tests/
-│   ├── Feature/                # Flow test: Borrow, Return, Waitlist, Extend, Export, StockOpname, Ticket
-│   └── Unit/
-└── README.md
-```
+Lihat dokumentasi lengkap di [DOCUMENTATION.md](DOCUMENTATION.md).
 
 ---
 
@@ -69,8 +43,8 @@ Sistem manajemen inventaris dan peminjaman aset perkantoran berbasis web untuk B
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/KimYo2/Sistem-Peminjaman-BMN.git
-cd Sistem-Peminjaman-BMN
+git clone https://github.com/KimYo2/siap-inventaris.git
+cd siap-inventaris
 ```
 
 ### 2. Install Dependencies
@@ -93,7 +67,7 @@ Edit file `.env` dan sesuaikan konfigurasi database:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=pinjam_qr
+DB_DATABASE=siap
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -180,7 +154,7 @@ Test suite mencakup alur: peminjaman, pengembalian, waitlist, perpanjangan, peno
 
 ## Screenshot
 
-*[ Screenshot akan ditambahkan ]*
+*[ Coming soon ]*
 
 ---
 

@@ -32,7 +32,7 @@
 | **Database** | MySQL |
 | **Frontend** | Blade + Tailwind CSS (CDN) + Alpine.js |
 | **Build Tool** | Vite |
-| **Repository** | https://github.com/KimYo2/Sistem-Peminjaman-BMN |
+| **Repository** | https://github.com/KimYo2/siap-inventaris |
 
 ### Dua Role Pengguna
 
@@ -182,8 +182,8 @@ database/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/KimYo2/Sistem-Peminjaman-BMN.git
-cd Sistem-Peminjaman-BMN
+git clone https://github.com/KimYo2/siap-inventaris.git
+cd siap-inventaris
 
 # 2. Install dependensi PHP
 composer install
@@ -206,7 +206,7 @@ Edit file `.env`, sesuaikan bagian berikut:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=sistem_peminjaman_bmn
+DB_DATABASE=siap
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -390,91 +390,36 @@ Data akun berikut dibuat oleh `UserSeeder` saat menjalankan `php artisan migrate
 | 2026-04 | v1.4 | Tambah: **Foto Barang** (upload ke storage) |
 | 2026-04 | v1.4 | Tambah: **Avatar User** (UI Avatars fallback + upload opsional) |
 | 2026-04 | v1.5 | Perbaikan dokumentasi BPS QR Format (indeks segmen parser) |
-- [x] Verify light/dark mode switching works correctly
-
-### Final Verification
-- [x] Test all pages in light mode
-- [x] Test all pages in dark mode
-- [x] Ensure smooth transitions between modes
-- [x] Verify BPS color consistency
-- [x] Check accessibility standards
+| 2026-04 | v1.6 | Rename aplikasi: SIAP — Sistem Inventaris Aset Perkantoran |
 
 ---
 
-9. [Troubleshooting Guide](#troubleshooting-guide)
+## 10. Troubleshooting
+
+### Kamera tidak muncul saat scan QR
+Scan QR menggunakan `html5-qrcode` memerlukan akses kamera via **HTTPS atau localhost**.
+Pastikan aplikasi diakses melalui `http://localhost:8000` atau domain HTTPS.
+
+### Tampilan tidak update di HP setelah perubahan
+Browser HP melakukan cache agresif. Lakukan hard refresh (tarik layar ke bawah),
+atau buka di mode incognito. Sistem sudah menerapkan cache-busting pada file CSS/JS
+dengan `?v=filemtime(...)` sehingga versi baru selalu terambil.
+
+### Foreign key error saat `migrate:fresh`
+Biasanya terjadi karena ada database lama (misalnya `pinjam_qr`) dengan FK lintas-database
+yang menunjuk ke tabel di database baru. Solusi: hapus database lama sebelum migrasi.
+
+```bash
+# Via MySQL
+DROP DATABASE IF EXISTS pinjam_qr;
+```
+
+### Storage tidak dapat diakses (foto/avatar)
+Jalankan symlink storage jika belum:
+```bash
+php artisan storage:link
+```
 
 ---
 
-## Troubleshooting Guide
-
-### 📱 Masalah Tampilan di HP (Mobile)
-
-**Masalah**: Tampilan di HP masih versi lama atau berantakan setelah update.  
-**Penyebab**: Browser HP melakukan caching agresif terhadap file CSS/JS.  
-**Solusi**:
-1. **Cache Busting (Implemented)**: Sistem sudah diupdate dengan `?v=time()` pada setiap link CSS/JS. Ini memaksa browser untuk selalu mengambil file versi terbaru.
-2. **Refresh Hard**: Tarik layar ke bawah (pull-to-refresh) beberapa kali.
-3. **Incognito Mode**: Coba buka menggunakan "New Incognito Tab" atau "Private Mode".
-4. **Clear Cache**: Hapus cache browser jika masalah berlanjut.
-
-### 🌐 Akses Local Network (Laravel Serve)
-
-Agar website bisa dibuka dari HP:
-
-1. **Jalankan Server dengan Host 0.0.0.0**:
-   ```bash
-   php artisan serve --host=0.0.0.0 --port=8000
-   ```
-   *Atau jika menggunakan php built-in server:*
-   ```bash
-   php -S 0.0.0.0:8000 -t public
-   ```
-
-2. **Cek IP Address Komputer**:
-   - Buka CMD -> ketik `ipconfig`
-   - Cari **IPv4 Address** (contoh: `192.168.1.15`)
-
-3. **Akses dari HP**:
-   - Pastikan HP dan Laptop di WiFi yang sama
-   - Buka browser HP -> ketik `http://192.168.1.15:8000` (Ganti IP sesuai komputer Anda)
-
----
-
-## Final Result
-
-### Light Mode
-- Professional gray theme with #cfcfcf background
-- Harmonized element colors (#e8e8e8 cards, #f5f5f5 headers)
-- BPS blue for primary actions
-- Orange accents for status indicators
-
-### Dark Mode
-- Clean dark theme with slate-900 background
-- Proper slate-800 cards and headers
-- Excellent contrast for readability
-- Consistent BPS color scheme
-
-### User Experience
-- Smooth theme switching with transitions
-- Persistent theme preference
-- Consistent branding across all pages
-- Professional government application aesthetic
-
----
-
-## Notes
-
-> [!IMPORTANT]
-> Orange accent should be used **sparingly** - only for specific status indicators and important elements. It should NOT dominate the interface.
-
-> [!TIP]
-> The blue primary color (#2563EB) is modern yet professional, suitable for government applications and reports.
-
-> [!WARNING]
-> Do NOT use inline styles for theming - always use CSS classes or the override CSS file to maintain consistency and avoid dark mode conflicts.
-
----
-
-**Last Updated**: 2026-01-27  
-**Version**: 1.0  
-**Status**: ✅ Complete
+> **Last Updated**: 2026-04-01 | **Version**: 1.6
