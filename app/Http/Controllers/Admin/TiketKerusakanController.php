@@ -44,7 +44,7 @@ class TiketKerusakanController extends Controller
         }
 
         $tickets = $query->paginate(15)->withQueryString();
-        $admins = User::where('role', 'admin')->orderBy('nama')->get(['id', 'nama', 'nip']);
+        $admins = User::where('role', 'admin')->orderBy('name')->get(['id', 'name', 'nip']);
 
         return view('admin.tiket.index', compact('tickets', 'admins'));
     }
