@@ -45,28 +45,28 @@
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
     <!-- Faux "current page" layer -->
     <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"></div>
-        <div class="absolute -top-28 -left-20 h-72 w-72 rounded-full bg-blue-200/70 blur-3xl dark:bg-blue-900/40"></div>
-        <div class="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-cyan-200/60 blur-3xl dark:bg-cyan-900/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30"></div>
+        <div class="absolute -top-28 -left-20 h-72 w-72 rounded-full bg-blue-300/60 blur-3xl dark:bg-blue-900/40"></div>
+        <div class="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-teal-200/55 blur-3xl dark:bg-cyan-900/40"></div>
 
-        <div class="relative h-full w-full px-6 py-8 opacity-60">
+        <div class="relative h-full w-full px-6 py-8 opacity-90">
             <div class="mx-auto max-w-5xl space-y-6">
                 <div class="flex items-center gap-4">
                     <div class="h-10 w-10 rounded-xl bg-blue-600/80"></div>
                     <div class="h-6 w-40 rounded-lg bg-slate-200/80 dark:bg-slate-800/80"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="h-36 rounded-2xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60"></div>
-                    <div class="h-36 rounded-2xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60"></div>
-                    <div class="h-36 rounded-2xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60"></div>
+                    <div class="h-36 rounded-2xl bg-white/85 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60"></div>
+                    <div class="h-36 rounded-2xl bg-white/85 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60"></div>
+                    <div class="h-36 rounded-2xl bg-white/85 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60"></div>
                 </div>
-                <div class="h-56 rounded-2xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60"></div>
+                <div class="h-56 rounded-2xl bg-white/85 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60"></div>
             </div>
         </div>
     </div>
 
     <!-- Overlay + floating login -->
-    <div class="absolute inset-0 bg-slate-900/35 dark:bg-slate-950/60 backdrop-blur-[3px]"></div>
+    <div class="absolute inset-0 bg-white/15 dark:bg-slate-950/40 backdrop-blur-[2px]"></div>
 
     <div class="absolute top-4 right-4 z-20">
         <button id="theme-toggle" type="button"
