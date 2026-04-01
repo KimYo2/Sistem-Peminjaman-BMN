@@ -48,71 +48,222 @@
                 </button>
             </div>
 
-        <!-- Filters -->
-        <div
-            class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 mb-6 transition-colors">
-            <form action="{{ route('admin.barang.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                <div>
-                    <label
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Filter
-                        Ketersediaan</label>
-                    <select name="ketersediaan" onchange="this.form.submit()"
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
-                        <option value="">Semua</option>
-                        <option value="tersedia" {{ request('ketersediaan') == 'tersedia' ? 'selected' : '' }}>Tersedia
-                        </option>
-                        <option value="dipinjam" {{ request('ketersediaan') == 'dipinjam' ? 'selected' : '' }}>Dipinjam
-                        </option>
-                    </select>
+        {{-- Filters --}}
+        <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200
+                    dark:border-slate-700 shadow-sm mb-6 transition-colors">
+
+            @php
+                $activeFilters = collect([
+                    request('ketersediaan'),
+                    request('status_barang'),
+                    request('kategori_id'),
+                    request('ruangan_id'),
+                    request('search'),
+                ])->filter()->count();
+            @endphp
+
+            {{-- Filter header with collapsible toggle --}}
+            <button type="button" id="filter-toggle"
+                class="w-full flex items-center justify-between px-5 py-3.5
+                       text-sm font-semibold text-slate-700 dark:text-slate-300
+                       hover:bg-slate-50 dark:hover:bg-slate-700/50
+                       rounded-t-lg transition-colors">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                    </svg>
+                    <span>Filter &amp; Pencarian</span>
+                    @if($activeFilters > 0)
+                        <span class="inline-flex items-center justify-center
+                                     w-5 h-5 rounded-full bg-indigo-600 text-white
+                                     text-xs font-bold">
+                            {{ $activeFilters }}
+                        </span>
+                    @endif
                 </div>
-                <div>
-                    <label
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Status Barang</label>
-                    <select name="status_barang" onchange="this.form.submit()"
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
-                        <option value="">Semua</option>
-                        <option value="aktif" {{ request('status_barang') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                        <option value="rusak_total" {{ request('status_barang') == 'rusak_total' ? 'selected' : '' }}>Rusak Total</option>
-                        <option value="hilang" {{ request('status_barang') == 'hilang' ? 'selected' : '' }}>Hilang</option>
-                        <option value="dihapuskan" {{ request('status_barang') == 'dihapuskan' ? 'selected' : '' }}>Dihapuskan</option>
-                    </select>
-                </div>
-                <div>
-                    <label
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Kategori</label>
-                    <select name="kategori_id" onchange="this.form.submit()"
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
-                        <option value="">Semua Kategori</option>
-                        @foreach($kategoriList as $kat)
-                            <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Ruangan</label>
-                    <select name="ruangan_id" onchange="this.form.submit()"
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
-                        <option value="">Semua Ruangan</option>
-                        @foreach($ruanganList as $rng)
-                            <option value="{{ $rng->id }}" {{ request('ruangan_id') == $rng->id ? 'selected' : '' }}>{{ $rng->nama_ruangan }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Pencarian</label>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nomor BMN, brand, atau tipe..."
-                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition placeholder-slate-400">
-                </div>
-                <div class="flex items-end">
-                    <button type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm">
-                        Terapkan Filter
-                    </button>
-                </div>
-            </form>
+                <svg id="filter-chevron"
+                     class="w-4 h-4 text-slate-400 transition-transform duration-200
+                            {{ $activeFilters > 0 ? 'rotate-180' : '' }}"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            {{-- Filter body (collapsible) --}}
+            <div id="filter-body"
+                 class="{{ $activeFilters > 0 ? '' : 'hidden' }} border-t
+                        border-slate-100 dark:border-slate-700">
+                <form action="{{ route('admin.barang.index') }}" method="GET"
+                      id="filter-form" class="p-5">
+
+                    @if(request('per_page') && request('per_page') != 10)
+                        <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                    @endif
+
+                    {{-- Row 1: 4 dropdowns --}}
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500
+                                          dark:text-slate-400 mb-1 uppercase tracking-wide">
+                                Ketersediaan
+                            </label>
+                            <select name="ketersediaan"
+                                class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900
+                                       border border-slate-300 dark:border-slate-600
+                                       rounded-lg text-sm text-slate-900 dark:text-white
+                                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                       transition">
+                                <option value="">Semua</option>
+                                <option value="tersedia"
+                                    {{ request('ketersediaan') == 'tersedia' ? 'selected' : '' }}>
+                                    Tersedia
+                                </option>
+                                <option value="dipinjam"
+                                    {{ request('ketersediaan') == 'dipinjam' ? 'selected' : '' }}>
+                                    Dipinjam
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500
+                                          dark:text-slate-400 mb-1 uppercase tracking-wide">
+                                Status
+                            </label>
+                            <select name="status_barang"
+                                class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900
+                                       border border-slate-300 dark:border-slate-600
+                                       rounded-lg text-sm text-slate-900 dark:text-white
+                                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                       transition">
+                                <option value="">Semua</option>
+                                <option value="aktif"
+                                    {{ request('status_barang') == 'aktif' ? 'selected' : '' }}>
+                                    Aktif
+                                </option>
+                                <option value="rusak_total"
+                                    {{ request('status_barang') == 'rusak_total' ? 'selected' : '' }}>
+                                    Rusak Total
+                                </option>
+                                <option value="hilang"
+                                    {{ request('status_barang') == 'hilang' ? 'selected' : '' }}>
+                                    Hilang
+                                </option>
+                                <option value="dihapuskan"
+                                    {{ request('status_barang') == 'dihapuskan' ? 'selected' : '' }}>
+                                    Dihapuskan
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500
+                                          dark:text-slate-400 mb-1 uppercase tracking-wide">
+                                Kategori
+                            </label>
+                            <select name="kategori_id"
+                                class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900
+                                       border border-slate-300 dark:border-slate-600
+                                       rounded-lg text-sm text-slate-900 dark:text-white
+                                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                       transition">
+                                <option value="">Semua Kategori</option>
+                                @foreach($kategoriList as $kat)
+                                    <option value="{{ $kat->id }}"
+                                        {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>
+                                        {{ $kat->nama_kategori }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500
+                                          dark:text-slate-400 mb-1 uppercase tracking-wide">
+                                Ruangan
+                            </label>
+                            <select name="ruangan_id"
+                                class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900
+                                       border border-slate-300 dark:border-slate-600
+                                       rounded-lg text-sm text-slate-900 dark:text-white
+                                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                       transition">
+                                <option value="">Semua Ruangan</option>
+                                @foreach($ruanganList as $rng)
+                                    <option value="{{ $rng->id }}"
+                                        {{ request('ruangan_id') == $rng->id ? 'selected' : '' }}>
+                                        {{ $rng->nama_ruangan }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Row 2: Search + action buttons --}}
+                    <div class="flex flex-col sm:flex-row gap-3">
+
+                        <div class="flex-1 relative">
+                            <div class="pointer-events-none absolute inset-y-0 left-0
+                                        flex items-center pl-3">
+                                <svg class="w-4 h-4 text-slate-400" fill="none"
+                                     stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2"
+                                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                            <input type="text" name="search"
+                                   value="{{ request('search') }}"
+                                   placeholder="Cari nomor BMN, brand, atau tipe..."
+                                   class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900
+                                          border border-slate-300 dark:border-slate-600
+                                          rounded-lg text-sm text-slate-900 dark:text-white
+                                          focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                          transition placeholder-slate-400">
+                        </div>
+
+                        <div class="flex gap-2 shrink-0">
+                            @if($activeFilters > 0)
+                                <a href="{{ route('admin.barang.index') }}"
+                                   class="inline-flex items-center gap-1.5 px-4 py-2
+                                          bg-white dark:bg-slate-700
+                                          border border-slate-300 dark:border-slate-600
+                                          text-slate-600 dark:text-slate-300
+                                          rounded-lg text-sm font-medium
+                                          hover:bg-slate-50 dark:hover:bg-slate-600
+                                          transition whitespace-nowrap">
+                                    <svg class="w-3.5 h-3.5" fill="none"
+                                         stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    Reset
+                                </a>
+                            @endif
+
+                            <button type="submit"
+                                class="inline-flex items-center gap-1.5 px-5 py-2
+                                       bg-indigo-600 hover:bg-indigo-700
+                                       text-white rounded-lg text-sm font-medium
+                                       shadow-sm transition whitespace-nowrap">
+                                <svg class="w-3.5 h-3.5" fill="none"
+                                     stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2"
+                                          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                                </svg>
+                                Terapkan Filter
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
         </div>
 
         <!-- Barang List -->
@@ -364,7 +515,49 @@
                     </tbody>
 
             <x-slot:pagination>
-                {{ $barang->links() }}
+                <div class="flex flex-col sm:flex-row items-center justify-between
+                            gap-3 px-4 py-3 border-t border-slate-200 dark:border-slate-700">
+
+                    <div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                        <span>
+                            Menampilkan
+                            <span class="font-medium text-slate-700 dark:text-slate-300">
+                                {{ $barang->firstItem() ?? 0 }}
+                            </span>
+                            &ndash;
+                            <span class="font-medium text-slate-700 dark:text-slate-300">
+                                {{ $barang->lastItem() ?? 0 }}
+                            </span>
+                            dari
+                            <span class="font-medium text-slate-700 dark:text-slate-300">
+                                {{ $barang->total() }}
+                            </span>
+                            barang
+                        </span>
+
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs text-slate-400 whitespace-nowrap">Tampilkan</span>
+                            <select onchange="changePerPage(this.value)"
+                                class="text-xs px-2 py-1.5 bg-slate-50 dark:bg-slate-900
+                                       border border-slate-300 dark:border-slate-600
+                                       rounded-md text-slate-700 dark:text-slate-300
+                                       focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500
+                                       cursor-pointer transition">
+                                @foreach([10, 20, 50, 100] as $size)
+                                    <option value="{{ $size }}"
+                                        {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                                        {{ $size }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="text-xs text-slate-400">per halaman</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ $barang->links() }}
+                    </div>
+                </div>
             </x-slot:pagination>
         </x-responsive-table>
 
@@ -390,5 +583,23 @@
 
             checkboxes.forEach(cb => cb.addEventListener('change', updateBar));
         });
+
+        function changePerPage(value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', value);
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
+        }
+
+        (function () {
+            const toggle  = document.getElementById('filter-toggle');
+            const body    = document.getElementById('filter-body');
+            const chevron = document.getElementById('filter-chevron');
+            if (!toggle) return;
+            toggle.addEventListener('click', function () {
+                const isHidden = body.classList.toggle('hidden');
+                chevron.classList.toggle('rotate-180', !isHidden);
+            });
+        })();
     </script>
 @endsection

@@ -25,10 +25,14 @@ class BarangController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = in_array((int) request('per_page'), [10, 20, 50, 100])
+            ? (int) request('per_page')
+            : 10;
+
         $barang = Barang::query()
             ->with(['pic', 'kategori', 'ruangan'])
             ->filter($request->only(['ketersediaan', 'kategori_id', 'ruangan_id', 'search', 'status_barang']))
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
         $kategoriList = Kategori::orderBy('nama_kategori')->get();
