@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Scan QR Code - Sistem Peminjaman BMN')
+@section('title', 'Scan QR Code — SIAP')
 
 @section('content')
     <main class="max-w-2xl mx-auto" x-data="borrowScanPage()">

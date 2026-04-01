@@ -175,7 +175,7 @@
     <div class="footer">
         <table class="footer-table">
             <tr>
-                <td>Dicetak pada: {{ $generatedAt->format('d M Y, H:i') }} WIB &nbsp;&middot;&nbsp; Sistem Peminjaman BMN &nbsp;&middot;&nbsp; BPS</td>
+                <td>Dicetak pada: {{ $generatedAt->format('d M Y, H:i') }} WIB &nbsp;&middot;&nbsp; SIAP &nbsp;&middot;&nbsp; BPS Kabupaten Jepara</td>
                 <td class="page-number">Halaman <span class="pagenum"></span></td>
             </tr>
         </table>

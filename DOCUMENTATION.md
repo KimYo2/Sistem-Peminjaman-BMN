@@ -1,6 +1,6 @@
-# Dokumentasi Sistem Peminjaman BMN
+# Dokumentasi SIAP — Sistem Inventaris Aset Perkantoran
 
-> Sistem manajemen inventaris dan peminjaman barang milik negara (BMN) berbasis web, dibangun dengan Laravel 12 untuk BPS (Badan Pusat Statistik).
+> Sistem manajemen inventaris dan peminjaman aset perkantoran berbasis web, dibangun dengan Laravel 12 untuk BPS Kabupaten Jepara.
 
 ---
 
@@ -20,12 +20,12 @@
 
 ## 1. Overview
 
-**Sistem Peminjaman BMN** adalah aplikasi web manajemen peminjaman Barang Milik Negara (BMN) yang dirancang khusus untuk lingkungan BPS (Badan Pusat Statistik).
+**SIAP (Sistem Inventaris Aset Perkantoran)** adalah aplikasi web manajemen inventaris dan peminjaman aset perkantoran yang dirancang khusus untuk BPS Kabupaten Jepara.
 
 | Atribut | Detail |
 |---------|--------|
-| **Nama Proyek** | Sistem Peminjaman BMN |
-| **Dibangun untuk** | BPS — Badan Pusat Statistik |
+| **Nama Proyek** | SIAP — Sistem Inventaris Aset Perkantoran |
+| **Dibangun untuk** | BPS Kabupaten Jepara |
 | **Tujuan** | Manajemen inventaris & peminjaman barang via QR Code |
 | **Framework** | Laravel 12 |
 | **Bahasa** | PHP 8.2+ |

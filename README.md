@@ -1,6 +1,6 @@
-# Sistem Peminjaman BMN
+# SIAP — Sistem Inventaris Aset Perkantoran
 
-Sistem manajemen peminjaman Barang Milik Negara (BMN) berbasis web untuk BPS (Badan Pusat Statistik). Aplikasi ini memungkinkan pegawai meminjam dan mengembalikan inventaris kantor melalui scan QR Code, dengan alur persetujuan admin, antrian tunggu otomatis, dan pencatatan audit yang lengkap.
+Sistem manajemen inventaris dan peminjaman aset perkantoran berbasis web untuk BPS Kabupaten Jepara. Aplikasi ini memungkinkan pegawai meminjam dan mengembalikan inventaris kantor melalui scan QR Code, dengan alur persetujuan admin, antrian tunggu otomatis, dan pencatatan audit yang lengkap.
 
 ---
 

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Notifikasi — Sistem Peminjaman BMN')
+@section('title', 'Notifikasi — SIAP')
 
 @section('content')
     <div class="max-w-3xl mx-auto">

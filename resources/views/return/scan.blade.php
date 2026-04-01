@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Scan Pengembalian - Sistem Peminjaman BMN')
+@section('title', 'Scan Pengembalian — SIAP')
 @section('header_title', 'Scan Pengembalian')
 @section('header_subtitle', 'Scan QR untuk proses pengembalian barang')
 
@@ -277,7 +277,7 @@
                                                                                                 <p class="text-green-800 dark:text-green-300">${result.message}</p>
                                                                                             </div>
                                                                                         </div>
-                                                                                        <button @click="resetScan()" 
+                                                                                        <button @click="resetScan()"
                                                                                             class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold py-3 px-4 rounded-lg transition">
                                                                                             Scan Barang Lain
                                                                                         </button>
@@ -300,7 +300,7 @@
                                                                                             <p class="text-red-800 dark:text-red-300">${error.message || 'Terjadi kesalahan sistem'}</p>
                                                                                         </div>
                                                                                     </div>
-                                                                                    <button @click="resetScan()" 
+                                                                                    <button @click="resetScan()"
                                                                                         class="w-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-800 dark:text-red-200 font-semibold py-3 px-4 rounded-lg transition">
                                                                                         Coba Lagi
                                                                                     </button>

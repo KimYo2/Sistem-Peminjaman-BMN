@@ -6,7 +6,7 @@
     {{-- Discourage stale cache on HTML pages --}}
     <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Sistem Peminjaman BMN')</title>
+    <title>@yield('title', 'SIAP')</title>
     <link rel="icon" href="{{ asset('bps_logo.png') }}" type="image/png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
@@ -56,7 +56,7 @@
                                 </path>
                             </svg>
                         </div>
-                        <span class="font-bold text-lg text-slate-800 dark:text-white hidden sm:block">Pinjam BMN</span>
+                        <span class="font-bold text-lg text-slate-800 dark:text-white hidden sm:block">SIAP</span>
                     </a>
 
                     <!-- Desktop Nav Links -->
@@ -356,7 +356,7 @@
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                         </div>
-                        <span class="font-bold text-lg text-slate-800 dark:text-white">Pinjam BMN</span>
+                        <span class="font-bold text-lg text-slate-800 dark:text-white">SIAP</span>
                     </div>
                     <button @click="mobileOpen = false" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

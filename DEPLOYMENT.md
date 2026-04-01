@@ -1,6 +1,6 @@
-# Panduan Deployment — Sistem Peminjaman BMN
+# Panduan Deployment — SIAP
 
-Panduan ini menjelaskan cara men-deploy aplikasi **Sistem Peminjaman BMN** dari lingkungan pengembangan lokal ke server nyata — baik VPS, shared hosting, maupun server lokal kantor.
+Panduan ini menjelaskan cara men-deploy aplikasi **SIAP (Sistem Inventaris Aset Perkantoran)** dari lingkungan pengembangan lokal ke server nyata — baik VPS, shared hosting, maupun server lokal kantor.
 
 Panduan ini ditujukan untuk:
 - Staff IT atau admin di lingkungan kantor BPS
@@ -135,7 +135,7 @@ nano .env
 Isi minimal yang harus disesuaikan:
 
 ```env
-APP_NAME="Sistem Peminjaman BMN"
+APP_NAME="SIAP"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=http://IP_ATAU_DOMAIN_KAMU
@@ -294,7 +294,7 @@ php artisan key:generate
 Buka file `.env` dengan teks editor, sesuaikan bagian database:
 
 ```env
-APP_NAME="Sistem Peminjaman BMN"
+APP_NAME="SIAP"
 APP_ENV=local
 APP_DEBUG=false
 APP_URL=http://localhost

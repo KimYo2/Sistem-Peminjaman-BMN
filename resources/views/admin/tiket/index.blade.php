@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Tiket Kerusakan')
+@section('title', 'Tiket Kerusakan — SIAP')
 @section('header_title', 'Tiket Kerusakan')
 @section('header_subtitle', 'Kelola laporan kerusakan barang')
 

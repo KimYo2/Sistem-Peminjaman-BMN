@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Peminjaman BMN</title>
+    <title>Login — SIAP</title>
     <link rel="icon" href="{{ asset('bps_logo.png') }}" type="image/png">
     <script>
         window.tailwind = window.tailwind || {};
@@ -96,8 +96,13 @@
                         </path>
                     </svg>
                 </div>
-                <h1 class="mt-3 text-2xl font-bold">Sistem Peminjaman BMN</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Badan Pusat Statistik</p>
+                <h1 class="mt-3 text-2xl font-bold">SIAP</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 text-center">
+                    Sistem Inventaris Aset Perkantoran
+                </p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 text-center">
+                    BPS Kabupaten Jepara
+                </p>
             </div>
 
             <div
@@ -135,7 +140,7 @@
             </div>
 
             <p class="text-center text-xs text-slate-400 mt-6">
-                &copy; {{ date('Y') }} Sistem Peminjaman BMN
+                &copy; {{ date('Y') }} SIAP
             </p>
         </div>
     </main>
