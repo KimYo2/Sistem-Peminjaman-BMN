@@ -12,6 +12,10 @@ class TiketKerusakanSeeder extends Seeder
     {
         $now = Carbon::now('Asia/Jakarta');
 
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('tiket_kerusakan')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         DB::table('tiket_kerusakan')->insert([
             // Tiket baru — belum diproses
             [

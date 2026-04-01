@@ -12,6 +12,10 @@ class HistoriPeminjamanSeeder extends Seeder
     {
         $now = Carbon::now('Asia/Jakarta');
 
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('histori_peminjaman')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         // Helpers: tanggal acuan per bulan (Januari–Maret 2026)
         $jan = fn(int $day, int $hour = 9) => Carbon::create(2026, 1, $day, $hour, 0, 0, 'Asia/Jakarta');
         $feb = fn(int $day, int $hour = 9) => Carbon::create(2026, 2, $day, $hour, 0, 0, 'Asia/Jakarta');

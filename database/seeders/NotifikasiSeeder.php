@@ -12,6 +12,10 @@ class NotifikasiSeeder extends Seeder
     {
         $now = Carbon::now('Asia/Jakarta');
 
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('notifikasi')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         DB::table('notifikasi')->insert([
             // === Notifikasi untuk Budi (user 3) ===
             [

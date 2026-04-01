@@ -9,6 +9,10 @@ class KategoriSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('kategori')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         DB::table('kategori')->insert([
             [
                 'nama_kategori' => 'Komputer Desktop',

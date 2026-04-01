@@ -9,6 +9,10 @@ class BarangSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('barang')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         // Kategori IDs: 1=Desktop, 2=Laptop, 3=Printer, 4=Scanner, 5=Proyektor, 6=Jaringan
         // Ruangan IDs: 1=Kabag TU, 2=Subag, 3=Frontdesk, 4=Teknis 1, 5=Teknis 2, 6=Gudang, 7=Aula
 

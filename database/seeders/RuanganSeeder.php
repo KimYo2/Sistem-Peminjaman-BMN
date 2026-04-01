@@ -9,6 +9,10 @@ class RuanganSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('ruangan')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         DB::table('ruangan')->insert([
             ['kode_ruangan' => 'R-101', 'nama_ruangan' => 'Ruang Kabag TU',                   'lantai' => 'Lantai 1',         'created_at' => now(), 'updated_at' => now()],
             ['kode_ruangan' => 'R-102', 'nama_ruangan' => 'Ruang Subag',                       'lantai' => 'Lantai 1',         'created_at' => now(), 'updated_at' => now()],
