@@ -10,30 +10,30 @@ class TiketKerusakan extends Model
 
     protected $fillable = [
         'nomor_bmn',
-        'pelapor',
-        'jenis_kerusakan',
-        'deskripsi',
-        'status',
-        'tanggal_lapor',
-        'priority',
+        'kode_barang',
+        'nup',
+        'histori_id',
+        'dilaporkan_oleh',
         'assigned_to',
-        'target_selesai_at',
-        'closed_at',
+        'deskripsi',
         'admin_notes',
+        'status',
+        'priority',
         'resolusi',
         'catatan_resolusi',
-        'diselesaikan_at',
         'diselesaikan_by',
+        'tanggal_lapor',
+        'target_selesai_at',
+        'diselesaikan_at',
+        'closed_at',
     ];
 
     protected $casts = [
-        'tanggal_lapor'    => 'datetime',
-        'target_selesai_at'=> 'datetime',
-        'closed_at'        => 'datetime',
-        'diselesaikan_at'  => 'datetime',
+        'tanggal_lapor'     => 'datetime',
+        'target_selesai_at' => 'datetime',
+        'diselesaikan_at'   => 'datetime',
+        'closed_at'         => 'datetime',
     ];
-
-    public $timestamps = false;
 
     public function assignee()
     {
@@ -43,6 +43,16 @@ class TiketKerusakan extends Model
     public function resolver()
     {
         return $this->belongsTo(User::class, 'diselesaikan_by');
+    }
+
+    public function reporter()
+    {
+        return $this->belongsTo(User::class, 'dilaporkan_oleh');
+    }
+
+    public function histori()
+    {
+        return $this->belongsTo(HistoriPeminjaman::class, 'histori_id');
     }
 
     public function getResolusiLabelAttribute(): string

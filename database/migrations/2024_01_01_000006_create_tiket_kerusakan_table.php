@@ -9,21 +9,29 @@ return new class extends Migration {
     {
         Schema::create('tiket_kerusakan', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_barang', 20);
-            $table->integer('nup');
+            $table->string('nomor_bmn', 30)->nullable();
+            $table->string('kode_barang', 20)->nullable();
+            $table->integer('nup')->nullable();
             $table->foreignId('histori_id')->nullable()->constrained('histori_peminjaman')->nullOnDelete();
             $table->foreignId('dilaporkan_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->text('deskripsi');
-            $table->enum('status', ['baru', 'diproses', 'selesai'])->default('baru');
-            $table->enum('prioritas', ['rendah', 'sedang', 'tinggi'])->default('sedang');
+            $table->text('admin_notes')->nullable();
+            $table->enum('status', ['open', 'diproses', 'selesai'])->default('open');
+            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->enum('resolusi', ['diperbaiki', 'dihapuskan', 'hilang', 'diabaikan'])->nullable();
             $table->text('catatan_resolusi')->nullable();
-            $table->timestamp('diselesaikan_at')->nullable();
             $table->foreignId('diselesaikan_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('tanggal_lapor')->nullable();
+            $table->timestamp('target_selesai_at')->nullable();
+            $table->timestamp('diselesaikan_at')->nullable();
+            $table->timestamp('closed_at')->nullable();
             $table->timestamps();
 
+            $table->index('nomor_bmn');
             $table->index('kode_barang');
             $table->index('status');
+            $table->index('assigned_to');
         });
     }
 
