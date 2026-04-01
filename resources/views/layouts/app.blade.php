@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    {{-- Discourage stale cache on HTML pages --}}
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sistem Peminjaman BMN')</title>
     <link rel="icon" href="{{ asset('bps_logo.png') }}" type="image/png">
@@ -14,8 +16,8 @@
         };
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ asset('css/theme-fallback.css') }}">
-    <script src="{{ asset('js/theme.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/theme-fallback.css') }}?v={{ file_exists(public_path('css/theme-fallback.css')) ? filemtime(public_path('css/theme-fallback.css')) : '1' }}">
+    <script src="{{ asset('js/theme.js') }}?v={{ file_exists(public_path('js/theme.js')) ? filemtime(public_path('js/theme.js')) : '1' }}"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
