@@ -153,12 +153,14 @@ class HistoriController extends Controller
         $now = Carbon::now('Asia/Jakarta');
 
         DB::transaction(function () use ($histori, $barang, $now) {
+            $durasi = $barang->kategori->durasi_pinjam_default ?? 7;
+
             $histori->update([
                 'status' => 'dipinjam',
                 'approved_by' => Auth::id(),
                 'approved_at' => $now,
                 'waktu_pinjam' => $now,
-                'tanggal_jatuh_tempo' => $now->copy()->addDays(7),
+                'tanggal_jatuh_tempo' => $now->copy()->addDays($durasi),
                 'kondisi_awal' => $histori->kondisi_awal ?: $barang->kondisi_terakhir,
             ]);
 

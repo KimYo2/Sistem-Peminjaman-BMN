@@ -19,7 +19,10 @@ class StoreBarangRequest extends FormRequest
             'brand' => 'required|string|max:100',
             'tipe' => 'required|string|max:100',
             'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
+            'keterangan' => 'nullable|string',
             'pic_user_id' => 'nullable|exists:users,id',
+            'kategori_id' => 'nullable|exists:kategori,id',
+            'ruangan_id' => 'nullable|exists:ruangan,id',
         ];
     }
 }

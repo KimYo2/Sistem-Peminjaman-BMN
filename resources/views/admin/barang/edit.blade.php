@@ -77,6 +77,44 @@
 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="col-span-1">
+                        <label for="kategori_id"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Kategori</label>
+                        <select name="kategori_id" id="kategori_id"
+                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
+                            <option value="">- Tidak ada -</option>
+                            @foreach($kategoriList as $kat)
+                                <option value="{{ $kat->id }}"
+                                    {{ old('kategori_id', $barang->kategori_id) == $kat->id ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategori }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('kategori_id')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="col-span-1">
+                        <label for="ruangan_id"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Ruangan</label>
+                        <select name="ruangan_id" id="ruangan_id"
+                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
+                            <option value="">- Tidak ada -</option>
+                            @foreach($ruanganList as $rng)
+                                <option value="{{ $rng->id }}"
+                                    {{ old('ruangan_id', $barang->ruangan_id) == $rng->id ? 'selected' : '' }}>
+                                    {{ $rng->nama_ruangan }} ({{ $rng->kode_ruangan }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('ruangan_id')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="col-span-1">
                         <label for="kondisi"
                             class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Kondisi
                             Terakhir</label>
@@ -109,15 +147,35 @@
                     </div>
                 </div>
 
-                <!-- Note: Keterangan field was in legacy code but unclear if in DB. Excluding for now to avoid error, as fillable update didn't include it. -->
+                <div>
+                    <label for="keterangan"
+                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Keterangan</label>
+                    <textarea name="keterangan" id="keterangan" rows="3"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition"
+                        placeholder="Catatan tambahan tentang barang (opsional)">{{ old('keterangan', $barang->keterangan) }}</textarea>
+                    @error('keterangan')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                <div class="pt-4 flex items-center justify-end gap-3">
-                    <a href="{{ route('admin.barang.index') }}"
-                        class="px-5 py-2.5 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 rounded-lg font-medium transition">Batal</a>
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white px-8 py-2.5 rounded-lg font-medium shadow-sm transition">
-                        Simpan Perubahan
-                    </button>
+                <div class="pt-4 flex items-center justify-between">
+                    <a href="{{ route('admin.barang.qr-label', $barang->id) }}" target="_blank"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded-lg font-medium text-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                            </path>
+                        </svg>
+                        Cetak QR
+                    </a>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('admin.barang.index') }}"
+                            class="px-5 py-2.5 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 rounded-lg font-medium transition">Batal</a>
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white px-8 py-2.5 rounded-lg font-medium shadow-sm transition">
+                            Simpan Perubahan
+                        </button>
+                    </div>
                 </div>
 
             </form>

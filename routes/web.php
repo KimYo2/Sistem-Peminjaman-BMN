@@ -48,6 +48,10 @@ Route::middleware(['web', Authenticate::class])->group(function () {
         ]);
         Route::post('/admin/barang/import', [App\Http\Controllers\Admin\BarangController::class, 'import'])->name('admin.barang.import');
 
+        // Admin QR Label Printing
+        Route::get('/admin/barang/{id}/qr-label', [App\Http\Controllers\Admin\QrLabelController::class, 'show'])->name('admin.barang.qr-label');
+        Route::post('/admin/barang/qr-label/bulk', [App\Http\Controllers\Admin\QrLabelController::class, 'bulk'])->name('admin.barang.qr-label.bulk');
+
         // Admin Histori Management (New Migration)
         Route::get('/admin/histori', [App\Http\Controllers\Admin\HistoriController::class, 'index'])->name('admin.histori.index');
         Route::post('/admin/histori/{id}/approve', [App\Http\Controllers\Admin\HistoriController::class, 'approve'])->name('admin.histori.approve');
@@ -63,20 +67,40 @@ Route::middleware(['web', Authenticate::class])->group(function () {
         Route::post('/admin/opname/{id}/scan', [App\Http\Controllers\Admin\StockOpnameController::class, 'scan'])->name('admin.opname.scan');
         Route::post('/admin/opname/{id}/finish', [App\Http\Controllers\Admin\StockOpnameController::class, 'finish'])->name('admin.opname.finish');
         Route::get('/admin/opname/{id}/export', [App\Http\Controllers\Admin\StockOpnameController::class, 'export'])->name('admin.opname.export');
+
+        // Admin User Management
+        Route::resource('/admin/users', App\Http\Controllers\Admin\UserController::class, [
+            'names' => 'admin.users',
+            'except' => ['show'],
+        ]);
+
+        // Admin Kategori Management
+        Route::resource('/admin/kategori', App\Http\Controllers\Admin\KategoriController::class, [
+            'names' => 'admin.kategori',
+            'except' => ['show'],
+            'parameters' => ['kategori' => 'kategori'],
+        ]);
+
+        // Admin Ruangan Management
+        Route::resource('/admin/ruangan', App\Http\Controllers\Admin\RuanganController::class, [
+            'names' => 'admin.ruangan',
+            'except' => ['show'],
+            'parameters' => ['ruangan' => 'ruangan'],
+        ]);
     });
 });
 
 // Fallback for Legacy Src
 // Auth Routes
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('user.dashboard');
 });
 Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
 // Protected Routes Group (Optional: Add middleware later)
-// For now, simple grouping or just list them. 
+// For now, simple grouping or just list them.
 // Ideally we should wrap these with 'auth' middleware manually or in controller constructor.
 
 

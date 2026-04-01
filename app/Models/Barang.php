@@ -14,20 +14,29 @@ class Barang extends Model
         'brand',
         'tipe',
         'kondisi_terakhir',
+        'keterangan',
         'nama_barang',
         'ketersediaan',
         'pic_user_id',
+        'kategori_id',
+        'ruangan_id',
         'peminjam_terakhir',
         'waktu_pinjam',
         'waktu_kembali'
     ];
 
-    public $timestamps = false;
-
     public function scopeFilter($query, array $filters): void
     {
         if (!empty($filters['ketersediaan'])) {
             $query->where('ketersediaan', $filters['ketersediaan']);
+        }
+
+        if (!empty($filters['kategori_id'])) {
+            $query->where('kategori_id', $filters['kategori_id']);
+        }
+
+        if (!empty($filters['ruangan_id'])) {
+            $query->where('ruangan_id', $filters['ruangan_id']);
         }
 
         if (!empty($filters['search'])) {
@@ -82,5 +91,15 @@ class Barang extends Model
     public function pic()
     {
         return $this->belongsTo(User::class, 'pic_user_id');
+    }
+
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class);
+    }
+
+    public function ruangan()
+    {
+        return $this->belongsTo(Ruangan::class);
     }
 }

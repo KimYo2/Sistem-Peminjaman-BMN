@@ -32,10 +32,26 @@
             </div>
         </div>
 
+        <form id="bulk-qr-form" action="{{ route('admin.barang.qr-label.bulk') }}" method="POST" target="_blank">
+            @csrf
+            <div id="bulk-qr-bar"
+                class="hidden mb-4 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
+                <span class="text-sm text-blue-700 dark:text-blue-300"><strong id="bulk-count">0</strong> barang dipilih</span>
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                        </path>
+                    </svg>
+                    Cetak QR Terpilih
+                </button>
+            </div>
+
         <!-- Filters -->
         <div
             class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-5 mb-6 transition-colors">
-            <form action="{{ route('admin.barang.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form action="{{ route('admin.barang.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label
                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Filter
@@ -47,6 +63,28 @@
                         </option>
                         <option value="dipinjam" {{ request('ketersediaan') == 'dipinjam' ? 'selected' : '' }}>Dipinjam
                         </option>
+                    </select>
+                </div>
+                <div>
+                    <label
+                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Kategori</label>
+                    <select name="kategori_id" onchange="this.form.submit()"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
+                        <option value="">Semua Kategori</option>
+                        @foreach($kategoriList as $kat)
+                            <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label
+                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Ruangan</label>
+                    <select name="ruangan_id" onchange="this.form.submit()"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
+                        <option value="">Semua Ruangan</option>
+                        @foreach($ruanganList as $rng)
+                            <option value="{{ $rng->id }}" {{ request('ruangan_id') == $rng->id ? 'selected' : '' }}>{{ $rng->nama_ruangan }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
@@ -73,9 +111,15 @@
                     <thead
                         class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider transition-colors">
                         <tr>
+                            <th class="px-3 py-3 text-center w-10">
+                                <input type="checkbox" id="select-all"
+                                    class="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500">
+                            </th>
                             <th class="px-6 py-3 text-left">Nomor BMN</th>
                             <th class="px-6 py-3 text-left">Brand</th>
                             <th class="px-6 py-3 text-left">Tipe</th>
+                            <th class="px-6 py-3 text-left">Kategori</th>
+                            <th class="px-6 py-3 text-left">Ruangan</th>
                             <th class="px-6 py-3 text-left">Kondisi</th>
                             <th class="px-6 py-3 text-left">Status</th>
                             <th class="px-6 py-3 text-left">Peminjam</th>
@@ -87,6 +131,10 @@
                         class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700 text-sm transition-colors">
                         @forelse($barang as $item)
                                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition duration-150">
+                                            <td class="px-3 py-4 text-center w-10">
+                                                <input type="checkbox" name="ids[]" value="{{ $item->id }}" form="bulk-qr-form"
+                                                    class="bulk-checkbox rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500">
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900 dark:text-white">
                                                 {{ $item->kode_barang }}-{{ $item->nup }}
                                             </td>
@@ -94,18 +142,24 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">{{ $item->tipe }}
                                             </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                                                {{ $item->kategori ? $item->kategori->nama_kategori : '-' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                                                {{ $item->ruangan ? $item->ruangan->nama_ruangan : '-' }}
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium
                                                                                                                     {{ $item->kondisi_badge_class }}">
-                                                    <span class="w-1.5 h-1.5 rounded-full 
+                                                    <span class="w-1.5 h-1.5 rounded-full
                                                                                                                         {{ $item->kondisi_dot_class }}"></span>
                                                     {{ $item->kondisi_label }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md 
+                                                    class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-md
                                                                                                                     {{ $item->ketersediaan === 'tersedia' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300' }}">
                                                     {{ ucfirst($item->ketersediaan) }}
                                                 </span>
@@ -138,6 +192,15 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <div class="flex items-center justify-center gap-2">
+                                                    <a href="{{ route('admin.barang.qr-label', $item->id) }}" target="_blank"
+                                                        title="Cetak QR"
+                                                        class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                                                            </path>
+                                                        </svg>
+                                                    </a>
                                                     <a href="{{ route('admin.barang.edit', $item->id) }}"
                                                         class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +229,7 @@
                                         </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                                <td colspan="11" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
                                     <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -187,5 +250,29 @@
             </div>
         </div>
 
+        </form>
+
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.bulk-checkbox');
+            const bulkBar = document.getElementById('bulk-qr-bar');
+            const bulkCount = document.getElementById('bulk-count');
+
+            function updateBar() {
+                const checked = document.querySelectorAll('.bulk-checkbox:checked').length;
+                bulkCount.textContent = checked;
+                bulkBar.classList.toggle('hidden', checked === 0);
+            }
+
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = selectAll.checked);
+                updateBar();
+            });
+
+            checkboxes.forEach(cb => cb.addEventListener('change', updateBar));
+        });
+    </script>
 @endsection

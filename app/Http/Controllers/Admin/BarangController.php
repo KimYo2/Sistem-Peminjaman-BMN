@@ -7,6 +7,8 @@ use App\Http\Controllers\Concerns\LogsAudit;
 use App\Http\Requests\Admin\StoreBarangRequest;
 use App\Http\Requests\Admin\UpdateBarangRequest;
 use App\Models\Barang;
+use App\Models\Kategori;
+use App\Models\Ruangan;
 use App\Models\User;
 use App\Services\BarangImportService;
 use Illuminate\Http\Request;
@@ -20,12 +22,15 @@ class BarangController extends Controller
     public function index(Request $request)
     {
         $barang = Barang::query()
-            ->with('pic')
-            ->filter($request->only(['ketersediaan', 'search']))
+            ->with(['pic', 'kategori', 'ruangan'])
+            ->filter($request->only(['ketersediaan', 'kategori_id', 'ruangan_id', 'search']))
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.barang.index', compact('barang'));
+        $kategoriList = Kategori::orderBy('nama_kategori')->get();
+        $ruanganList = Ruangan::orderBy('nama_ruangan')->get();
+
+        return view('admin.barang.index', compact('barang', 'kategoriList', 'ruanganList'));
     }
 
     /**
@@ -34,7 +39,10 @@ class BarangController extends Controller
     public function create()
     {
         $users = $this->getUserOptions();
-        return view('admin.barang.create', compact('users'));
+        $kategoriList = Kategori::orderBy('nama_kategori')->get();
+        $ruanganList = Ruangan::orderBy('nama_ruangan')->get();
+
+        return view('admin.barang.create', compact('users', 'kategoriList', 'ruanganList'));
     }
 
     /**
@@ -59,8 +67,11 @@ class BarangController extends Controller
             'brand' => $data['brand'],
             'tipe' => $data['tipe'],
             'kondisi_terakhir' => $data['kondisi'],
-            'ketersediaan' => 'tersedia', // Default value
+            'keterangan' => $data['keterangan'] ?? null,
+            'ketersediaan' => 'tersedia',
             'pic_user_id' => $data['pic_user_id'] ?? null,
+            'kategori_id' => $data['kategori_id'] ?? null,
+            'ruangan_id' => $data['ruangan_id'] ?? null,
         ]);
 
         $this->logAudit('create', 'barang', null, [
@@ -76,17 +87,12 @@ class BarangController extends Controller
      */
     public function edit($id)
     {
-        // Legacy URL uses nomor_bmn (formatted like KODE-NUP).
-        // Standard resource uses ID. We should support ID for new links, 
-        // but since we linked with nomor_bmn in index, we need to handle that.
-        // Or better: update index link to use ID.
-        // Let's check index.blade.php again... It uses route('...destroy', $item->id).
-        // But for edit link: href="/src/admin/edit_barang.php?nomor_bmn={{ $item->kode_barang }}-{{ $item->nup }}"
-        // I will change index blade to use route('admin.barang.edit', $item->id).
-
         $barang = Barang::findOrFail($id);
         $users = $this->getUserOptions();
-        return view('admin.barang.edit', compact('barang', 'users'));
+        $kategoriList = Kategori::orderBy('nama_kategori')->get();
+        $ruanganList = Ruangan::orderBy('nama_ruangan')->get();
+
+        return view('admin.barang.edit', compact('barang', 'users', 'kategoriList', 'ruanganList'));
     }
 
     /**
@@ -101,9 +107,11 @@ class BarangController extends Controller
             'brand' => $data['brand'],
             'tipe' => $data['tipe'],
             'kondisi_terakhir' => $data['kondisi'],
+            'keterangan' => $data['keterangan'] ?? null,
             'ketersediaan' => $data['ketersediaan'],
             'pic_user_id' => $data['pic_user_id'] ?? null,
-            // 'keterangan' => $request->keterangan, // Need to check if model has 'keterangan'
+            'kategori_id' => $data['kategori_id'] ?? null,
+            'ruangan_id' => $data['ruangan_id'] ?? null,
         ]);
 
         $this->logAudit('update', 'barang', $barang->id, [
@@ -111,27 +119,14 @@ class BarangController extends Controller
             'nup' => $barang->nup,
         ]);
 
-        // Wait, does Barang model have 'keterangan'? 
-        // Legacy edit_barang.php has 'keterangan' field. 
-        // Let's check if I added it to fillable. No I didn't. 
-        // And I should check if migration/table has it. 
-        // I will check table schema or assume legacy is correct.
-        // Safe bet: if input implies it, I should add it.
-        // But for now, let's update what we know.
-
         return redirect()->route('admin.barang.index')->with('success', 'Barang berhasil diperbarui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) // Note: $id here might need to be resolved via model binding or custom query if ID is not primary key
+    public function destroy($id)
     {
-        // Ideally we should use ID, but legacy uses nomor_bmn. 
-        // Let's assume we pass the primary ID for cleanliness in Laravel, 
-        // OR we can accept nomor_bmn if we want to stick to legacy params.
-        // For standard resource, destroy takes $id.
-
         $barang = Barang::findOrFail($id);
         $barang->delete();
 

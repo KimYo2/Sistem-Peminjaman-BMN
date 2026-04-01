@@ -90,6 +90,42 @@
                     @enderror
                 </div>
 
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="col-span-1">
+                        <label for="kategori_id"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Kategori</label>
+                        <select name="kategori_id" id="kategori_id"
+                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
+                            <option value="">- Tidak ada -</option>
+                            @foreach($kategoriList as $kat)
+                                <option value="{{ $kat->id }}" {{ old('kategori_id') == $kat->id ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategori }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('kategori_id')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="col-span-1">
+                        <label for="ruangan_id"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Ruangan</label>
+                        <select name="ruangan_id" id="ruangan_id"
+                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition">
+                            <option value="">- Tidak ada -</option>
+                            @foreach($ruanganList as $rng)
+                                <option value="{{ $rng->id }}" {{ old('ruangan_id') == $rng->id ? 'selected' : '' }}>
+                                    {{ $rng->nama_ruangan }} ({{ $rng->kode_ruangan }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('ruangan_id')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
                 <div>
                     <label for="kondisi"
                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Kondisi
@@ -103,6 +139,17 @@
                         </option>
                     </select>
                     @error('kondisi')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="keterangan"
+                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Keterangan</label>
+                    <textarea name="keterangan" id="keterangan" rows="3"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white transition"
+                        placeholder="Catatan tambahan tentang barang (opsional)">{{ old('keterangan') }}</textarea>
+                    @error('keterangan')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>

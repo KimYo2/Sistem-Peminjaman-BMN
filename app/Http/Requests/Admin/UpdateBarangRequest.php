@@ -20,6 +20,8 @@ class UpdateBarangRequest extends FormRequest
             'ketersediaan' => 'required|in:tersedia,dipinjam,hilang,reparasi',
             'keterangan' => 'nullable|string',
             'pic_user_id' => 'nullable|exists:users,id',
+            'kategori_id' => 'nullable|exists:kategori,id',
+            'ruangan_id' => 'nullable|exists:ruangan,id',
         ];
     }
 }
