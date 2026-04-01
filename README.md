@@ -1,141 +1,196 @@
-# Sistem Peminjaman Barang BMN dengan QR Code
+# Sistem Peminjaman BMN
 
-Aplikasi web untuk peminjaman inventaris BMN BPS dengan scan QR Code, persetujuan admin, antrian tunggu, perpanjangan, dan stock opname.
+Sistem manajemen peminjaman Barang Milik Negara (BMN) berbasis web untuk BPS (Badan Pusat Statistik). Aplikasi ini memungkinkan pegawai meminjam dan mengembalikan inventaris kantor melalui scan QR Code, dengan alur persetujuan admin, antrian tunggu otomatis, dan pencatatan audit yang lengkap.
+
+---
 
 ## Fitur Utama
 
-### User (Pegawai)
-- Login berbasis NIP & password.
-- Scan QR barang -> lihat detail lengkap (kode BMN, NUP, brand, tipe, kondisi, status).
-- Ajukan peminjaman (status awal `menunggu`).
-- Antrian tunggu (waitlist) bila barang tidak tersedia; posisi antrian ditampilkan, bisa batal sendiri.
-- Perpanjangan masa pinjam dengan alasan & durasi (default 7 hari).
-- Histori pribadi paginasi, lengkap dengan status perpanjangan.
-- Dashboard user: ringkasan pinjaman aktif, jatuh tempo terdekat, overdue, riwayat terakhir.
-- Pengembalian via `/return` (scan); bisa tandai rusak → otomatis buat tiket kerusakan.
-- Auto-notify: saat barang dikembalikan, antrian tunggu pertama otomatis dibuatkan permintaan pinjam baru.
+- **Peminjaman & Pengembalian** — Ajukan peminjaman barang via scan QR Code; kembalikan melalui halaman return scan
+- **QR Code Scanner** — Scan label QR pada barang BMN untuk melihat detail dan mengajukan pinjam
+- **Approval Workflow** — Admin menyetujui atau menolak setiap pengajuan peminjaman
+- **Perpanjangan Masa Pinjam** — Pegawai dapat mengajukan perpanjangan dengan alasan; admin menyetujui/menolak
+- **Waitlist (Antrian Tunggu)** — Bila barang sedang dipinjam, pegawai bisa masuk antrian; saat barang kembali, antrian pertama otomatis diproses
+- **Tiket Kerusakan** — Laporan kerusakan otomatis dibuat saat barang dikembalikan dalam kondisi rusak; dilengkapi prioritas, penugasan, dan log riwayat
+- **Stock Opname** — Mulai sesi, scan barang satu per satu (found/missing), selesaikan sesi, dan ekspor hasilnya
+- **Audit Log** — Pencatatan otomatis untuk aksi penting: approve, reject, export, stock opname, tiket kerusakan
+- **Export CSV** — Ekspor histori peminjaman dan hasil stock opname ke file CSV (UTF-8 BOM, anti CSV injection)
+- **Dashboard & Statistik** — Dashboard terpisah untuk admin dan pegawai dengan ringkasan data real-time
+- **Dark Mode** — Tema terang dan gelap dengan BPS color scheme, toggle persist di browser
 
-### Admin
-- Dashboard statistik: total/tersedia/dipinjam, pinjaman aktif, overdue list, top items & borrowers, rata-rata durasi pinjam.
-- Barang: CRUD + pilih PIC, impor CSV, enum ketersediaan dan kondisi yang dinormalisasi.
-- Peminjaman:
-  - Setujui/tolak pengajuan.
-  - Kelola pengembalian (melalui return flow).
-  - Kelola perpanjangan (setujui/tolak, perpanjang jatuh tempo).
-  - Ekspor histori ke CSV aman-Excel (anti CSV injection, BOM UTF-8).
-- Antrian tunggu: otomatis diproses saat barang kembali.
-- Tiket kerusakan: status (open/diproses/selesai), prioritas (low/medium/high), penugasan admin, target selesai, riwayat log.
-- Stock opname:
-  - Mulai sesi (satu sesi berjalan sekaligus).
-  - Scan barang per sesi (found/missing), statistik ditemukan/missing.
-  - Selesaikan sesi dengan catatan.
-  - Ekspor hasil per sesi ke CSV.
-- Audit log untuk aksi penting (approve/reject/export/stock-opname/tiket).
+---
 
-### Antarmuka & Tema
-- BPS color scheme, light mode khusus (#cfcfcf) dan dark mode penuh.
-- Toggle tema persist di localStorage + sessionStorage + cookie (`public/js/theme.js`), fallback bila Tailwind tidak termuat.
-- Blade + Tailwind CDN; aset tambahan di `public/js` dan `public/css`.
+## Tech Stack
+
+| Layer        | Teknologi                        |
+| ------------ | -------------------------------- |
+| Backend      | Laravel 12, PHP 8.2+             |
+| Frontend     | Blade Templates, Tailwind CSS    |
+| Database     | MySQL                            |
+| Build Tool   | Vite                             |
+| Library      | Carbon, html5-qrcode, Alpine.js  |
+
+---
 
 ## Struktur Folder
+
 ```
-pinjam_qr/
-├─ app/
-│  ├─ Http/
-│  │  ├─ Controllers/
-│  │  │  ├─ Admin/            # Barang, Histori, StockOpname, TiketKerusakan
-│  │  │  ├─ User/             # Dashboard, Scan, Barang, Histori, Waitlist
-│  │  │  ├─ Auth/             # Login/Logout
-│  │  │  └─ ReturnController.php
-│  │  └─ Requests/            # Form Request Admin & User
-│  ├─ Models/                 # Barang, HistoriPeminjaman, Waitlist, TiketKerusakan(+Log), StockOpname*, AuditLog, User
-│  └─ Services/               # BmnParser, BarangImportService
-├─ database/
-│  └─ migrations/             # Schema (perpanjangan, waitlist, tiket kerusakan, stock opname, audit)
-├─ resources/
-│  └─ views/                  # Blade: admin/, user/, auth/, return/
-├─ public/
-│  ├─ js/                     # theme.js, scanner, helper JS
-│  ├─ css/                    # tambahan CSS
-│  └─ index.php
-├─ routes/
-│  └─ web.php                 # Definisi route (user/admin/return)
-├─ tests/
-│  ├─ Feature/                # Borrow/Return/Waitlist/Extend/Reject/Export/StockOpname/Ticket flows
-│  └─ Unit/
-├─ DOCUMENTATION.md           # Catatan tema & warna BPS
-└─ README.md
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/          # Barang, Histori, StockOpname, TiketKerusakan
+│   │   │   ├── Auth/           # Login / Logout
+│   │   │   ├── User/           # Dashboard, Scan, Barang, Histori, Waitlist
+│   │   │   └── ReturnController.php
+│   │   ├── Middleware/         # EnsureAdmin
+│   │   └── Requests/           # Form Request (Admin & User)
+│   ├── Models/                 # Barang, HistoriPeminjaman, Waitlist, TiketKerusakan, StockOpname*, AuditLog, User
+│   └── Services/               # BmnParser, BarangImportService
+├── database/
+│   ├── migrations/             # Semua schema termasuk waitlist, tiket, stock opname, audit
+│   └── seeders/                # Data demo barang & user
+├── resources/
+│   └── views/                  # Blade: admin/, user/, auth/, return/, layouts/
+├── public/
+│   ├── css/                    # Stylesheet tambahan
+│   └── js/                     # theme.js, scanner, helper JS
+├── routes/
+│   └── web.php                 # Definisi route (user / admin / return / auth)
+├── tests/
+│   ├── Feature/                # Flow test: Borrow, Return, Waitlist, Extend, Export, StockOpname, Ticket
+│   └── Unit/
+└── README.md
 ```
 
-## Arsitektur Singkat
-- Backend: Laravel 12, MySQL.
-- Frontend: Blade + Tailwind CDN, Alpine.js, html5-qrcode.
-- Service/helper penting: `BmnParser` (format kode BMN), `BarangImportService`.
-- Middleware: auth + `EnsureAdmin`.
-- Model utama: Barang, HistoriPeminjaman, Waitlist, TiketKerusakan (+Log), StockOpnameSession/Item, AuditLog, User.
+---
 
-## Alur Penting
-- Peminjaman: scan → detail → ajukan → admin setujui/tolak → status `dipinjam` → jatuh tempo default +7 hari.
-- Perpanjangan: user ajukan; admin setujui/tolak (ubah jatuh tempo, rekam alasan/penolak).
-- Pengembalian: scan `/return`; bila rusak → tiket kerusakan; setelah update stok, antrian tunggu pertama otomatis dibuatkan permintaan pinjam.
-- Waitlist: join/cancel oleh user; status `aktif/notified/fulfilled/cancelled`.
-- Stock opname: start sesi → scan setiap BMN → selesai → ekspor CSV.
+## Cara Instalasi
 
-## Instalasi & Menjalankan
-### Dari GitHub (clone)
-1) Clone repo:
-   ```
-   git clone https://github.com/KimYo2/Sistem-Peminjaman-BMN.git
-   cd Sistem-Peminjaman-BMN
-   ```
-2) Salin `.env` dari contoh:
-   ```
-   cp .env.example .env
-   ```
-3) Lanjut ke langkah konfigurasi DB di bawah.
+### 1. Clone Repository
 
-### Dari ZIP
-1) Download ZIP dari GitHub, ekstrak.
-2) Buka folder hasil ekstrak.
-3) Duplikasi `.env.example` menjadi `.env`.
-4) Lanjut ke langkah konfigurasi DB di bawah.
+```bash
+git clone https://github.com/KimYo2/Sistem-Peminjaman-BMN.git
+cd Sistem-Peminjaman-BMN
+```
 
-1) Salin `.env`, set MySQL:
-   ```
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=pinjam_qr
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
-2) Migrasi & seed:
-   ```
-   php artisan migrate
-   php artisan db:seed
-   ```
-   (Mencakup tabel baru: waitlists, tiket_kerusakan(+logs), stock_opname_sessions/items, kolom perpanjangan di histori.)
-3) Jalankan:
-   ```
-   php artisan serve --host=0.0.0.0 --port=8000
-   ```
-4) Akses: `http://pinjam_qr.test` atau IP LAN sesuai host.
-5) Demo akun:
-   - Admin: NIP `198001012006041001` / `password123`
-   - User: NIP `199001012015041001` / `password123`
+### 2. Install Dependencies
 
-## Database Ringkas
-- `histori_peminjaman`: status, waktu_pinjam/kembali, jatuh_tempo, kondisi_awal/kembali, alasan/reason penolakan, kolom perpanjangan (status, hari, diminta/disetujui/ditolak, alasan).
-- `waitlists`: kode_barang, nup, nip_peminjam, status, requested/notified/fulfilled/cancelled timestamps.
-- `tiket_kerusakan` + `tiket_kerusakan_logs`: priority, assigned_to, target_selesai_at, admin_notes, closed_at.
-- `stock_opname_sessions` + `stock_opname_items`: status found/missing, expected/actual kondisi, scanned_by/at.
-- `audit_logs`: user_id, action, entity, meta JSON.
+```bash
+composer install
+npm install && npm run build
+```
+
+### 3. Konfigurasi Environment
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Edit file `.env` dan sesuaikan konfigurasi database:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=pinjam_qr
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 4. Migrasi & Seed Database
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+### 5. Jalankan Aplikasi
+
+```bash
+php artisan serve
+```
+
+Akses aplikasi di `http://localhost:8000`.
+
+### Akun Demo
+
+| Role  | NIP                  | Password      |
+| ----- | -------------------- | ------------- |
+| Admin | `198001012006041001` | `password123` |
+| User  | `199001012015041001` | `password123` |
+
+---
+
+## Struktur Role
+
+### Admin
+
+- Dashboard statistik (total barang, tersedia, dipinjam, overdue, top items & borrowers)
+- CRUD barang inventaris, termasuk import CSV dan penunjukan PIC
+- Menyetujui atau menolak pengajuan peminjaman dan perpanjangan
+- Mengelola tiket kerusakan (status, prioritas, penugasan, target selesai)
+- Menjalankan sesi stock opname dan ekspor hasilnya
+- Ekspor histori peminjaman ke CSV
+- Melihat audit log seluruh aksi penting
+
+### User (Pegawai)
+
+- Login menggunakan NIP dan password
+- Scan QR Code barang untuk melihat detail dan mengajukan peminjaman
+- Melihat histori peminjaman pribadi beserta status perpanjangan
+- Mengajukan perpanjangan masa pinjam
+- Mendaftar antrian tunggu (waitlist) bila barang tidak tersedia
+- Mengembalikan barang via scan dan melaporkan kerusakan jika ada
+- Dashboard pribadi: pinjaman aktif, jatuh tempo terdekat, overdue
+
+---
+
+## Alur Peminjaman
+
+1. **Scan QR Code** — Pegawai membuka halaman scan dan mengarahkan kamera ke label QR pada barang BMN
+2. **Lihat Detail Barang** — Sistem menampilkan informasi lengkap: kode BMN, NUP, brand, tipe, kondisi, dan status ketersediaan
+3. **Ajukan Peminjaman** — Pegawai mengajukan peminjaman; status awal tercatat sebagai `menunggu`
+4. **Persetujuan Admin** — Admin meninjau pengajuan dan menyetujui atau menolak dengan alasan
+5. **Barang Dipinjam** — Setelah disetujui, status berubah menjadi `dipinjam` dengan jatuh tempo default 7 hari
+6. **Perpanjangan** *(opsional)* — Pegawai dapat mengajukan perpanjangan masa pinjam; admin menyetujui atau menolak
+7. **Pengembalian** — Pegawai membuka halaman return, scan QR, dan konfirmasi pengembalian
+8. **Lapor Kerusakan** *(jika ada)* — Saat mengembalikan, pegawai dapat menandai barang rusak; sistem otomatis membuat tiket kerusakan
+9. **Antrian Diproses** — Setelah barang kembali, sistem otomatis memproses pegawai pertama dalam waitlist
+
+---
 
 ## Pengujian
-- Jalankan semua tes: `php artisan test`
-- Cakupan utama: Borrow/Return/Waitlist/Extend/Reject/Export histori, Stock Opname flow, Ticket upgrade (`tests/Feature/*FlowTest.php`).
 
-## Catatan
-- QR yang dibaca mengikuti format BPS (`kode_barang-nup`); parser toleran pada variasi `INV-...`.
-- Ekspor CSV memakai BOM UTF-8 dan proteksi prefix `'=+-@` agar aman di Excel/Sheets.
-- Gunakan HTTPS atau localhost agar kamera bisa diakses untuk scan.
+```bash
+php artisan test
+```
+
+Test suite mencakup alur: peminjaman, pengembalian, waitlist, perpanjangan, penolakan, export CSV, stock opname, dan tiket kerusakan.
+
+---
+
+## Catatan Teknis
+
+- Format QR mengikuti standar BPS (`kode_barang-nup`); parser mendukung variasi format `INV-...`
+- Export CSV menggunakan BOM UTF-8 dan sanitasi prefix `=`, `+`, `-`, `@` untuk keamanan di Excel/Google Sheets
+- Scan kamera memerlukan HTTPS atau localhost agar browser mengizinkan akses kamera
+
+---
+
+## Screenshot
+
+*[ Screenshot akan ditambahkan ]*
+
+---
+
+## Lisensi
+
+Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+
+---
+
+## Author
+
+**Danang Yoga Andimas**
+Magang — BPS Kabupaten Jepara
