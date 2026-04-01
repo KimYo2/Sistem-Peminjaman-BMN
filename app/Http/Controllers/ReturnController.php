@@ -11,7 +11,6 @@ use App\Services\BmnParser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ReturnController extends Controller
 {
@@ -33,16 +32,6 @@ class ReturnController extends Controller
 
             $kode_barang = $parsed['kode_barang'];
             $nup = $parsed['nup'];
-
-            // Logic tambahan untuk parsing BPS QR Code (INV-...) jika tidak kena filter diatas
-            // User snippet expects "-" split. 
-            // If the raw input is "INV-...*Code*NUP", strpos('-') is true, but explode result is wrong.
-            // But user insisted "nomer bmn ... sesuaikan logic scan sebelumnya".
-            // So we TRUST the user that $nomor_bmn passed here is compatible or they want this specific check.
-
-            // However, to avoid 500 error if "INV-..." comes in and split logic fails to get numeric NUP:
-            // The user's snippet uses intval(). If parts[1] is "2021...*...", intval might return 2021.
-            // This would cause mismatched item error (404), which is safe.
 
             if (empty($kode_barang)) {
                 return response()->json(['success' => false, 'message' => 'Kode barang tidak valid'], 400);
@@ -100,14 +89,6 @@ class ReturnController extends Controller
                     ]);
 
                 // Create damage ticket if item is damaged
-                Log::info('Damage ticket check', [
-                    'is_damaged_raw' => $isDamagedValue,
-                    'is_damaged_type' => gettype($isDamagedValue),
-                    'should_create' => $shouldCreateTicket,
-                    'jenis_kerusakan' => $data['jenis_kerusakan'] ?? null,
-                    'deskripsi' => $data['deskripsi'] ?? null
-                ]);
-
                 if ($shouldCreateTicket) {
                     $ticket = TiketKerusakan::create([
                         'nomor_bmn' => $kode_barang . '-' . $target_nup,
@@ -116,8 +97,6 @@ class ReturnController extends Controller
                         'deskripsi' => $data['deskripsi'] ?? '-',
                         'status' => 'open'
                     ]);
-
-                    Log::info('Damage ticket created', ['ticket_id' => $ticket->id]);
                 }
 
                 // Auto-process first waitlist entry (FIFO) when item becomes available
